@@ -1,0 +1,21 @@
+### GET All TODOS
+GET http://localhost:3000/todos HTTP/1.1
+
+### GET SINGLE TODO
+GET http://localhost:3000/todos/3 HTTP/1.1
+
+### POST REQUEST 
+POST http://localhost:3000/todos HTTP/1.1
+content-type: application/json
+
+{
+	"title": "Finish Project",
+	"description": "Finish the project by tomorrow",
+	"isCompleted": false
+}
+
+### DELETE REQUEST
+DELETE http://localhost:3000/todos HTTP/1.1
+
+### PUT REQUEST
+PUT http://localhost:3000/todos HTTP/1.1
