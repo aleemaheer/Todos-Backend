@@ -1,6 +1,6 @@
 const fs = require("fs");
 const http = require("http");
-const content = require('./data.json');
+let data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
 const server = http.createServer((req, res) => {
 	if (req.url === "/todos" && req.method === "GET") {
@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
 	} else if (req.url === "/todos" && req.method === "POST") {
 		postRequest(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
-		const id = req.url.split('/')[2];
+		const id = req.url.split("/")[2];
 		getSingleTodo(req, res, id);
 	} else if (req.url === "/todos" && req.method === "DELETE") {
 		deleteRequest(req, res);
@@ -19,40 +19,68 @@ const server = http.createServer((req, res) => {
 	}
 });
 
-// Function to call for get request
+// Function to get all todos (GET REQUEST)
 function getRequest(req, res) {
 	res.writeHead(200, { "Content-Type": "application/json" });
-	const data = fs.readFileSync("data.json", "utf-8");
-	res.end(JSON.stringify(content));
+	//data = fs.readFileSync("data.json", "utf-8");
+	res.end(JSON.stringify(data));
 }
 
-// Function to get a single todo
-async function getSingleTodo(req, res, id) {
+// Function to get a single todo (GET REQUEST)
+function getSingleTodo(req, res, id) {
 	try {
 		// Search todo by id
-		if (!content) {
-			res.writeHead(404, {"Content-Type": "application/json"});
-			res.end(JSON.stringify({ message: "Product not found"}));
+		let singleTodo;
+		for (let i = 0; i < data.length; i++) {
+			if (data[i].id === parseInt(id)) {
+				singleTodo = data[i];
+				break;
+			}
 		}
-		else {
-			res.writeHead(200, {"Content-Type": "application/json"});
-			//console.log(content);
-			res.end(singleTodo);
-			console.log(singleTodo);
+		if (!singleTodo) {
+			res.writeHead(404, { "Content-Type": "application/json" });
+			res.end(`Todo with id ${id} not found`);
+		} else {
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(JSON.stringify(singleTodo));
 		}
-	}
-	catch (err) {
+	} catch (err) {
 		console.log(err.message);
-		res.writeHead(503, {"Content-Type": "application/json"});
+		res.writeHead(503, { "Content-Type": "application/json" });
 		res.end("Internal Server Error");
 	}
 }
 
 // Function to call for post request
 function postRequest(req, res) {
-	res.writeHead(200, { "Content-Type": "application/json" });
-	console.log(typeof req.body);
-	res.end("You have sended a post request");
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+
+		req.on("end", () => {
+			const { title, description, isCompleted } = JSON.parse(body);
+			const getIdFromThere = JSON.parse(fs.readFileSync("data.json", "utf-8"));
+			let id = getIdFromThere.length;
+			id++;
+			const newTodo = {
+				id: id,
+				title: title,
+				description: description,
+				isCompleted: isCompleted,
+			};
+			data.push(newTodo);
+			fs.writeFileSync("data.json", JSON.stringify(data));
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.write(JSON.stringify(newTodo));
+			res.end();
+		});
+	} catch (err) {
+		console.log(err.message);
+		res.writeHead(404, { "Content-Type": "application/json" });
+		res.end();
+	}
 }
 
 // Function to call for delete request
