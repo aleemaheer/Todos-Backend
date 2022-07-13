@@ -2,20 +2,27 @@
 GET http://localhost:3000/todos HTTP/1.1
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/3 HTTP/1.1
+GET http://localhost:3000/todos/1 HTTP/1.1
 
-### POST REQUEST 
+### POST REQUEST CREATE A NEW TODO
 POST http://localhost:3000/todos HTTP/1.1
 content-type: application/json
 
 {
-	"title": "Finish Project",
-	"description": "Finish the project by tomorrow",
+	"title": "Wash dishes",
+	"description": "Wash all the dishes before the guests came",
 	"isCompleted": false
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos HTTP/1.1
+DELETE http://localhost:3000/todos/1 HTTP/1.1
 
 ### PUT REQUEST
-PUT http://localhost:3000/todos HTTP/1.1
+PUT http://localhost:3000/todos/1 HTTP/1.1
+content-type: application/json
+
+{
+	"title": "Updated",
+	"description": "Finish the project by tomorrow",
+	"isCompleted": true
+}
