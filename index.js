@@ -94,17 +94,17 @@ function deleteRequest(req, res, id) {
 			res.writeHead(404, {"Content-Type": "application/json"});
 			res.end("Todo list is empty");
 		} else {
-			for (let i = 0; i < data.length + 1; i++) {
+			for (let i = 0; i < data.length; i++) {
 				if (data[i].id === parseInt(id)) {
 					indexOfTargetTodo = i;
 					break;
 				} else {
-					console.log("Not found")
+					// not found
 				}
 			}
 			if (indexOfTargetTodo != 0 && !indexOfTargetTodo) {
 				res.writeHead(404, { "Content-Type": "application/json" });
-				res.end("No todo with this id " + id);
+				res.end(`Todo with id ${id} not found`);
 			} else {
 				// Delete the todo with indexOfTargetTodo
 				data.splice(indexOfTargetTodo, 1);
