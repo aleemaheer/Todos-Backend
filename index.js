@@ -143,9 +143,6 @@ function putRequest(req, res, id) {
 		});
 		req.on("end", () => {
 			const { title, description, isCompleted } = JSON.parse(body);
-			//const getIdFromThere = JSON.parse(fs.readFileSync("data.json", "utf-8"));
-			//let id = getIdFromThere.length;
-			//id++;
 			const newTodo = {
 				id: parseInt(id),
 				title: title,
