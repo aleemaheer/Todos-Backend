@@ -98,8 +98,7 @@ function deleteRequest(req, res, id) {
 				if (data[i].id === parseInt(id)) {
 					indexOfTargetTodo = i;
 					break;
-				}
-				else {
+				} else {
 					console.log("Not found")
 				}
 			}
