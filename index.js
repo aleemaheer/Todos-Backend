@@ -17,14 +17,14 @@ const server = http.createServer((req, res) => {
 		const id = req.url.split("/")[2];
 		putRequest(req, res, id);
 	} else {
-		res.end("Route not found");
+		res.writeHead(502, {"Content-Type": "application/json"});
+		res.end(JSON.stringify("Route not found"));
 	}
 });
 
 // Function to get all todos (GET REQUEST)
 function getRequest(req, res) {
 	res.writeHead(200, { "Content-Type": "application/json" });
-	//data = fs.readFileSync("data.json", "utf-8");
 	res.end(JSON.stringify(data));
 }
 
@@ -41,7 +41,7 @@ function getSingleTodo(req, res, id) {
 		}
 		if (!singleTodo) {
 			res.writeHead(404, { "Content-Type": "application/json" });
-			res.end(`Todo with id ${id} not found`);
+			res.end(JSON.stringify(`Todo with id ${id} not found`));
 		} else {
 			res.writeHead(200, { "Content-Type": "application/json" });
 			res.end(JSON.stringify(singleTodo));
@@ -92,7 +92,7 @@ function deleteRequest(req, res, id) {
 		let indexOfTargetTodo;
 		if (!data[0]) {
 			res.writeHead(404, {"Content-Type": "application/json"});
-			res.end("Todo list is empty");
+			res.end(JSON.stringify(`Todo list is empty`));
 		} else {
 			for (let i = 0; i < data.length; i++) {
 				if (data[i].id === parseInt(id)) {
@@ -104,7 +104,7 @@ function deleteRequest(req, res, id) {
 			}
 			if (indexOfTargetTodo != 0 && !indexOfTargetTodo) {
 				res.writeHead(404, { "Content-Type": "application/json" });
-				res.end(`Todo with id ${id} not found`);
+				res.end(JSON.stringify(`Todo with id ${id} not found`));
 			} else {
 				// Delete the todo with indexOfTargetTodo
 				data.splice(indexOfTargetTodo, 1);
