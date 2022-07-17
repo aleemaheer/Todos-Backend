@@ -4,18 +4,18 @@ let data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
 const server = http.createServer((req, res) => {
 	if (req.url === "/todos" && req.method === "GET") {
-		getRequest(req, res);
+		getTodos(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
-		postRequest(req, res);
+		createTodo(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
-		getSingleTodo(req, res, id);
+		getTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
-		deleteRequest(req, res, id);
+		deleteTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
 		const id = req.url.split("/")[2];
-		putRequest(req, res, id);
+		updateTodo(req, res, id);
 	} else {
 		res.writeHead(502, {"Content-Type": "application/json"});
 		res.end(JSON.stringify("Route not found"));
@@ -23,13 +23,13 @@ const server = http.createServer((req, res) => {
 });
 
 // Function to get all todos (GET REQUEST)
-function getRequest(req, res) {
+function getTodos(req, res) {
 	res.writeHead(200, { "Content-Type": "application/json" });
 	res.end(JSON.stringify(data));
 }
 
 // Function to get a single todo (GET REQUEST)
-function getSingleTodo(req, res, id) {
+function getTodo(req, res, id) {
 	try {
 		// Search todo by id
 		let singleTodo;
@@ -54,7 +54,7 @@ function getSingleTodo(req, res, id) {
 }
 
 // Function to call for post request
-function postRequest(req, res) {
+function createTodo(req, res) {
 	try {
 		let body = "";
 		req.on("data", (chunk) => {
@@ -66,7 +66,6 @@ function postRequest(req, res) {
 			const getIdFromThere = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 			let id = getIdFromThere.length;
 			id++;
-			parseInt(id);
 			const newTodo = {
 				id: id,
 				title: title,
@@ -87,7 +86,7 @@ function postRequest(req, res) {
 }
 
 // Function to call for delete request
-function deleteRequest(req, res, id) {
+function deleteTodo(req, res, id) {
 	try {
 		let indexOfTargetTodo;
 		if (!data[0]) {
@@ -122,7 +121,7 @@ function deleteRequest(req, res, id) {
 }
 
 // Function to call for put request
-function putRequest(req, res, id) {
+function updateTodo(req, res, id) {
 	try {
 		let targetTodo = "";
 		let indexOfTargetTodo = "";
