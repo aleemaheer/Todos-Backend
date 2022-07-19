@@ -2,7 +2,7 @@
 GET http://localhost:3000/todos HTTP/1.1
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/3 HTTP/1.1
+GET http://localhost:3000/todos/2 HTTP/1.1
 
 ### POST REQUEST CREATE A NEW TODO
 POST http://localhost:3000/todos HTTP/1.1
@@ -14,7 +14,7 @@ content-type: application/json
 }
 
 ### UPDATE STATUS OF TODO
-PUT http://localhost:3000/todos/updateStatus/10 HTTP/1.1
+PUT http://localhost:3000/todos/updateStatus/3 HTTP/1.1
 content-type: application/json
 
 {
