@@ -127,15 +127,13 @@ async function handleDeleteTodo(req, res, id) {
 		if (response) {
 			res.writeHead(200, { "Content-Type": "application/json" });
 			res.end(JSON.stringify(response));
-		}
-		else {
-			res.writeHead(404, {"Content-Type": "application/json"});
-			res.end(JSON.stringify({message: "Todo not found"}));
+		} else {
+			res.writeHead(404, { "Content-Type": "application/json" });
+			res.end(JSON.stringify({ message: "Todo not found" }));
 		}
 	} catch (err) {
 		res.writeHead(503, { "Content-Type": "text/plain" });
 		console.log(err);
-		const message = await store.deleteTodo(id);
 		res.end();
 	}
 }
@@ -149,8 +147,13 @@ function handleChangeStatus(req, res, id) {
 		});
 		req.on("end", async () => {
 			const response = await store.changeStatus(id, body);
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
+			if (response) {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+			} else {
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end(JSON.stringify({ message: "Todo not found" }));
+			}
 		});
 	} catch (err) {
 		console.log(err);
@@ -168,8 +171,13 @@ function handleUpdateTodo(req, res, id) {
 		});
 		req.on("end", async () => {
 			const response = await store.updateTodo(id, body);
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
+			if (response) {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+			} else {
+				res.writeHead(404, {"Content-Type": "application/json"});
+				res.end(JSON.stringify({message: "Todo not found"}));
+			}
 		});
 	} catch (err) {
 		console.log(err);

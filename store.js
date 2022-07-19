@@ -1,5 +1,6 @@
 const fs = require("fs");
 const { resolve } = require("path");
+const { resourceLimits } = require("worker_threads");
 //const data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
 // Function to return all todos
@@ -73,7 +74,7 @@ function createTodo(body) {
 function deleteTodo(id) {
 	return new Promise((resolve, reject) => {
 		try {
-			let targetTodo = "";
+			let targetTodo;
 			fs.readFile("data.json", "utf-8", (err, data) => {
 				if (err) {
 					console.log(err);
@@ -83,16 +84,23 @@ function deleteTodo(id) {
 					if (data[i].id === parseInt(id)) {
 						targetTodo = i;
 						break;
+					} else {
+						// todo not found
 					}
 				}
-				data.splice(targetTodo, 1);
-				fs.writeFile("data.json", JSON.stringify(data), (err) => {
-					if (err) {
-						console.log(err);
-					}
-					// file written successfully
-				});
-				resolve(data);
+				if (targetTodo) {
+					data.splice(targetTodo, 1);
+					console.log(targetTodo);
+					fs.writeFile("data.json", JSON.stringify(data), (err) => {
+						if (err) {
+							console.log(err);
+						}
+						// file written successfully
+					});
+					resolve(data);
+				} else {
+					resolve();
+				}
 			});
 		} catch (err) {
 			console.log(err);
@@ -112,22 +120,26 @@ function changeStatus(id, body) {
 				reject();
 			}
 			data = JSON.parse(data);
-			let targetTodo;
+			let targetTodo = -1;
 			for (let i = 0; i < data.length; i++) {
 				if (data[i].id === parseInt(id)) {
 					targetTodo = i;
 					break;
 				}
 			}
-			data[targetTodo].isCompleted = isCompleted;
-			fs.writeFile("data.json", JSON.stringify(data), (err) => {
-				if (err) {
-					console.log(err);
-					reject();
-				}
-				// Data writed
-			});
-			resolve(data[targetTodo]);
+			if (targetTodo === -1) {
+				resolve();
+			} else {
+				data[targetTodo].isCompleted = isCompleted;
+				fs.writeFile("data.json", JSON.stringify(data), (err) => {
+					if (err) {
+						console.log(err);
+						reject();
+					}
+					// Data writed
+				});
+				resolve(data[targetTodo]);
+			}
 		});
 	});
 }
@@ -149,8 +161,8 @@ function updateTodo(id, body) {
 					break;
 				}
 			}
-			if (!targetTodo && targetTodo !== 0) {
-				reject("Todo not found");
+			if (!targetTodo) {
+				resolve();
 			} else {
 				data[targetTodo].title = title;
 				data[targetTodo].description = description;
