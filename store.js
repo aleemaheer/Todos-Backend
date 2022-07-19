@@ -1,9 +1,8 @@
 const fs = require("fs");
 const { resolve } = require("path");
 const { resourceLimits } = require("worker_threads");
-//const data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
-// Function to return all todos
+// Function to return todos
 function getTodos() {
 	return new Promise((resolve, reject) => {
 		fs.readFile("data.json", "utf-8", (err, data) => {

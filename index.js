@@ -1,25 +1,20 @@
 const fs = require("fs");
 const http = require("http");
-//let data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 const store = require("./store");
 
 const server = http.createServer((req, res) => {
 	if (req.url === "/todos" && req.method === "GET") {
 		handleTodos(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
-		//createTodo(req, res);
 		handleCreateTodo(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
-		//handleTodo(req, res, id);
 		HandleTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
-		//deleteTodo(req, res, id);
 		handleDeleteTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
 		const id = req.url.split("/")[2];
-		//updateTodo(req, res, id);
 		handleUpdateTodo(req, res, id);
 	} else if (
 		req.url.match(/\/todos\/updateStatus\/([0-9]+)/) &&
@@ -33,14 +28,14 @@ const server = http.createServer((req, res) => {
 	}
 });
 
-// Function to get all todos (GET REQUEST)
+// Function to get all todos
 async function handleTodos(req, res) {
 	const todos = await store.getTodos();
 	res.writeHead(200, { "Content-Type": "application/json" });
 	res.end(JSON.stringify(todos));
 }
 
-// Function to get a single todo (GET REQUEST)
+// Function to get a single todo
 async function HandleTodo(req, res, id) {
 	try {
 		let todo = await store.getTodo(id);
@@ -58,48 +53,6 @@ async function HandleTodo(req, res, id) {
 	}
 }
 
-// Function to call for put request
-function updateTodo(req, res, id) {
-	try {
-		let targetTodo = "";
-		let indexOfTargetTodo = "";
-		for (let i = 0; i < data.length; i++) {
-			if (data[i].id === parseInt(id)) {
-				targetTodo = data;
-				indexOfTargetTodo = i;
-				break;
-			}
-		}
-		if (!targetTodo) {
-			res.writeHead(404, { "Content-Type": "application/json" });
-			res.end();
-		}
-		let body = "";
-		req.on("data", (chunk) => {
-			body += chunk;
-		});
-		req.on("end", () => {
-			const { title, description, isCompleted } = JSON.parse(body);
-			const newTodo = {
-				id: parseInt(id),
-				title: title,
-				description: description,
-				isCompleted: isCompleted,
-			};
-			data[indexOfTargetTodo] = newTodo;
-			fs.writeFileSync("data.json", JSON.stringify(data));
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.write(JSON.stringify(newTodo));
-			res.end();
-		});
-	} catch (err) {
-		res.writeHead(503, { "Content-Type": "application/json" });
-		console.log(err);
-		res.end();
-	}
-}
-
-server.listen(3000, () => console.log("Server is listening on 3000"));
 
 // Function to handle create todo request
 function handleCreateTodo(req, res) {
@@ -162,7 +115,7 @@ function handleChangeStatus(req, res, id) {
 	}
 }
 
-// Function to update todo
+// Function to handle update todo
 function handleUpdateTodo(req, res, id) {
 	try {
 		let body = "";
@@ -185,3 +138,6 @@ function handleUpdateTodo(req, res, id) {
 		res.end();
 	}
 }
+
+
+server.listen(3000, () => console.log("Server is listening on 3000"));
