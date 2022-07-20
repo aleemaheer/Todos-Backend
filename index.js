@@ -1,142 +1,168 @@
+const fs = require("fs");
 const http = require("http");
-const store = require("./store");
+let data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
 const server = http.createServer((req, res) => {
 	if (req.url === "/todos" && req.method === "GET") {
-		handleTodos(req, res);
+		getRequest(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
-		handleCreateTodo(req, res);
+		postRequest(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
-		HandleTodo(req, res, id);
+		getSingleTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
-		handleDeleteTodo(req, res, id);
+		deleteRequest(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
 		const id = req.url.split("/")[2];
-		handleUpdateTodo(req, res, id);
-	} else if (
-		req.url.match(/\/todos\/updateStatus\/([0-9]+)/) &&
-		req.method === "PUT"
-	) {
-		const id = req.url.split("/")[3];
-		handleChangeStatus(req, res, id);
+		putRequest(req, res, id);
 	} else {
-		res.writeHead(502, { "Content-Type": "application/json" });
-		res.end(JSON.stringify("Route not found"));
+		res.end("Route not found");
 	}
 });
 
-// Function to get all todos
-async function handleTodos(req, res) {
-	const todos = await store.getTodos();
+// Function to get all todos (GET REQUEST)
+function getRequest(req, res) {
 	res.writeHead(200, { "Content-Type": "application/json" });
-	res.end(JSON.stringify(todos));
+	//data = fs.readFileSync("data.json", "utf-8");
+	res.end(JSON.stringify(data));
 }
 
-// Function to get a single todo
-async function HandleTodo(req, res, id) {
+// Function to get a single todo (GET REQUEST)
+function getSingleTodo(req, res, id) {
 	try {
-		let todo = await store.getTodo(id);
-		if (!todo) {
+		// Search todo by id
+		let singleTodo;
+		for (let i = 0; i < data.length; i++) {
+			if (data[i].id === parseInt(id)) {
+				singleTodo = data[i];
+				break;
+			}
+		}
+		if (!singleTodo) {
 			res.writeHead(404, { "Content-Type": "application/json" });
-			res.end(JSON.stringify({ message: "Todo not found" }));
+			res.end(`Todo with id ${id} not found`);
 		} else {
 			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(todo));
+			res.end(JSON.stringify(singleTodo));
 		}
 	} catch (err) {
 		console.log(err.message);
 		res.writeHead(503, { "Content-Type": "application/json" });
-		res.end();
+		res.end("Internal Server Error");
 	}
 }
 
-
-// Function to handle create todo request
-function handleCreateTodo(req, res) {
+// Function to call for post request
+function postRequest(req, res) {
 	try {
 		let body = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
-		req.on("end", async () => {
-			const response = await store.createTodo(body);
+
+		req.on("end", () => {
+			const { title, description, isCompleted } = JSON.parse(body);
+			const getIdFromThere = JSON.parse(fs.readFileSync("data.json", "utf-8"));
+			let id = getIdFromThere.length;
+			id++;
+			parseInt(id);
+			const newTodo = {
+				id: id,
+				title: title,
+				description: description,
+				isCompleted: isCompleted,
+			};
+			data.push(newTodo);
+			fs.writeFileSync("data.json", JSON.stringify(data));
 			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
+			res.write(JSON.stringify(newTodo));
+			res.end();
 		});
 	} catch (err) {
-		console.log(err);
-		res.writeHead(503, { "Content-Type": "application/json" });
+		console.log(err.message);
+		res.writeHead(404, { "Content-Type": "application/json" });
 		res.end();
 	}
 }
 
-// Function to handle delete todo
-async function handleDeleteTodo(req, res, id) {
+// Function to call for delete request
+function deleteRequest(req, res, id) {
 	try {
-		let response = await store.deleteTodo(id);
-		if (response) {
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
-		} else {
+		let indexOfTargetTodo;
+		if (!data[0]) {
 			res.writeHead(404, { "Content-Type": "application/json" });
-			res.end(JSON.stringify({ message: "Todo not found" }));
+			res.end("Todo list is empty");
+		} else {
+			for (let i = 0; i < data.length; i++) {
+				if (data[i].id === parseInt(id)) {
+					indexOfTargetTodo = i;
+					break;
+				} else {
+					// not found
+				}
+			}
+			if (indexOfTargetTodo != 0 && !indexOfTargetTodo) {
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end(`Todo with id ${id} not found`);
+			} else {
+				// Delete the todo with indexOfTargetTodo
+				data.splice(indexOfTargetTodo, 1);
+				fs.writeFileSync("data.json", JSON.stringify(data));
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.write(JSON.stringify(data));
+				res.end();
+			}
 		}
 	} catch (err) {
-		res.writeHead(503, { "Content-Type": "text/plain" });
-		console.log(err);
-		res.end();
-	}
-}
-
-// Function to handle for changing status of todo
-function handleChangeStatus(req, res, id) {
-	try {
-		let body = "";
-		req.on("data", (chunk) => {
-			body += chunk;
-		});
-		req.on("end", async () => {
-			const response = await store.changeStatus(id, body);
-			if (response) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(response));
-			} else {
-				res.writeHead(404, { "Content-Type": "application/json" });
-				res.end(JSON.stringify({ message: "Todo not found" }));
-			}
-		});
-	} catch (err) {
 		console.log(err);
 		res.writeHead(503, { "Content-Type": "application/json" });
 		res.end();
 	}
 }
 
-// Function to handle update todo
-function handleUpdateTodo(req, res, id) {
+// Function to call for put request
+function putRequest(req, res, id) {
 	try {
+		let targetTodo = "";
+		let indexOfTargetTodo = "";
+		for (let i = 0; i < data.length; i++) {
+			if (data[i].id === parseInt(id)) {
+				targetTodo = data;
+				indexOfTargetTodo = i;
+				break;
+			}
+		}
+		if (!targetTodo) {
+			res.writeHead(404, { "Content-Type": "application/json" });
+			res.end();
+		}
 		let body = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
-		req.on("end", async () => {
-			const response = await store.updateTodo(id, body);
-			if (response) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(response));
-			} else {
-				res.writeHead(404, {"Content-Type": "application/json"});
-				res.end(JSON.stringify({message: "Todo not found"}));
-			}
+		req.on("end", () => {
+			const { title, description, isCompleted } = JSON.parse(body);
+			//const getIdFromThere = JSON.parse(fs.readFileSync("data.json", "utf-8"));
+			//let id = getIdFromThere.length;
+			//id++;
+			const newTodo = {
+				id: parseInt(id),
+				title: title,
+				description: description,
+				isCompleted: isCompleted,
+			};
+			data[indexOfTargetTodo] = newTodo;
+			fs.writeFileSync("data.json", JSON.stringify(data));
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.write(JSON.stringify(newTodo));
+			res.end();
 		});
 	} catch (err) {
-		console.log(err);
 		res.writeHead(503, { "Content-Type": "application/json" });
+		console.log(err);
 		res.end();
 	}
 }
-
 
 server.listen(3000, () => console.log("Server is listening on 3000"));
