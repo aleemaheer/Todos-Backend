@@ -109,6 +109,74 @@ let store = class {
 			});
 		});
 	}
+
+    // Update status of todo, i.e., completed or not
+    updateStatus() {
+        return new Promise((resolve, reject) => {
+            fs.readFile("data.json", "utf-8", (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject();
+                }
+                data = JSON.parse(data);
+                let targetTodo = -1;
+                this.body = JSON.parse(this.body);
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].id === parseInt(this.id)) {
+                        targetTodo = i;
+                        break;
+                    }
+                }
+                if (targetTodo !== -1) {
+                    data[targetTodo].isCompleted = this.body.isCompleted;
+                    fs.writeFile("data.json", JSON.stringify(data), (err) => {
+                        if (err) {
+                            console.log(err);
+                            reject();
+                        }
+                        // File written successfully
+                    })
+                    resolve(data[targetTodo]);
+                } else {
+                    resolve();
+                }
+            })
+        })
+    }
+
+    // Update todo
+    updateTodo() {
+        return new Promise((resolve, reject) => {
+            fs.readFile("data.json", "utf-8", (err, data) => {
+                if (err) {
+                    console.log(err);
+                    reject();
+                }
+                data = JSON.parse(data);
+                this.body = JSON.parse(this.body);
+                let targetTodo = -1;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].id === parseInt(this.id)) {
+                        targetTodo = i;
+                    }
+                }
+                if (targetTodo !== -1) {
+                    data[targetTodo].title = this.body.title;
+                    data[targetTodo].description = this.body.description;
+                    fs.writeFile("data.json", JSON.stringify(data), (err) => {
+                        if (err) {
+                            console.log(err);
+                            reject();
+                        }
+                        // File written successful
+                    })
+                    resolve(data[targetTodo]);
+                } else {
+                    resolve();
+                }
+            })
+        })
+    }
 };
 
 module.exports = {
