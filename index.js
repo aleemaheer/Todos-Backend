@@ -79,8 +79,6 @@ function handlUpdateTodo(req, res, id) {
 	}
 }
 
-server.listen(3000, () => console.log("Server is listening on 3000"));
-
 // Function to handle to returning todos
 async function HandleTodos(req, res) {
 	const todos = new store.store();
@@ -204,3 +202,6 @@ function handleUpdateTodo(req, res, id) {
 		res.end();
 	}
 }
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log("Server is listening on 3000"));

@@ -33,3 +33,6 @@ content-type: application/json
 	"description": "Clean all the dishes before the guests came",
 	"isCompleted": true
 }
+
+### Testing Deployed
+GET https://vanillanodetodos.herokuapp.com/todos/1 HTTP/1.1
