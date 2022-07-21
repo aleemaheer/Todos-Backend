@@ -3,19 +3,15 @@ const store = require("./store");
 
 const server = http.createServer((req, res) => {
 	if (req.url === "/todos" && req.method === "GET") {
-		//handleTodos(req, res);
 		HandleTodos(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
-		//handleCreateTodo(req, res);
-		HandleCreateTodoTest(req, res);
+		HandleCreateTodo(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
-		//HandleTodo(req, res, id);
-		HandleTodoTest(req, res, id);
+		handleTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
-		//handleDeleteTodo(req, res, id);
-		handleDeleteTodoTest(req, res, id);
+		handleDeleteTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
 		const id = req.url.split("/")[2];
 		handleUpdateTodo(req, res, id);
@@ -31,54 +27,6 @@ const server = http.createServer((req, res) => {
 	}
 });
 
-// Function to handle for changing status of todo
-function handleChangeStatus(req, res, id) {
-	try {
-		let body = "";
-		req.on("data", (chunk) => {
-			body += chunk;
-		});
-		req.on("end", async () => {
-			const response = await store.changeStatus(id, body);
-			if (response) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(response));
-			} else {
-				res.writeHead(404, { "Content-Type": "application/json" });
-				res.end(JSON.stringify({ message: "Todo not found" }));
-			}
-		});
-	} catch (err) {
-		console.log(err);
-		res.writeHead(503, { "Content-Type": "application/json" });
-		res.end();
-	}
-}
-
-// Function to handle update todo
-function handlUpdateTodo(req, res, id) {
-	try {
-		let body = "";
-		req.on("data", (chunk) => {
-			body += chunk;
-		});
-		req.on("end", async () => {
-			const response = await store.updateTodo(id, body);
-			if (response) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(response));
-			} else {
-				res.writeHead(404, { "Content-Type": "application/json" });
-				res.end(JSON.stringify({ message: "Todo not found" }));
-			}
-		});
-	} catch (err) {
-		console.log(err);
-		res.writeHead(503, { "Content-Type": "application/json" });
-		res.end();
-	}
-}
-
 // Function to handle to returning todos
 async function HandleTodos(req, res) {
 	const todos = new store.store();
@@ -88,7 +36,7 @@ async function HandleTodos(req, res) {
 }
 
 // Function to handle to returning todo
-async function HandleTodoTest(req, res, id) {
+async function handleTodo(req, res, id) {
 	try {
 		const todos = new store.store(id);
 		const response = await todos.getTodo();
@@ -108,7 +56,7 @@ async function HandleTodoTest(req, res, id) {
 }
 
 // Function to handle create todo
-async function HandleCreateTodoTest(req, res) {
+async function HandleCreateTodo(req, res) {
 	try {
 		let body = "";
 		req.on("data", (chunk) => {
@@ -134,7 +82,7 @@ async function HandleCreateTodoTest(req, res) {
 }
 
 // Handle delete todo
-async function handleDeleteTodoTest(req, res, id) {
+async function handleDeleteTodo(req, res, id) {
 	try {
 		const todos = new store.store(id);
 		const response = await todos.deleteTodo();

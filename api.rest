@@ -2,7 +2,7 @@
 GET http://localhost:3000/todos HTTP/1.1
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/3 HTTP/1.1
+GET http://localhost:3000/todos/30 HTTP/1.1
 
 ### POST REQUEST CREATE A NEW TODO
 POST http://localhost:3000/todos HTTP/1.1
@@ -14,7 +14,7 @@ content-type: application/json
 }
 
 ### UPDATE STATUS OF TODO
-PUT http://localhost:3000/todos/updateStatus/10 HTTP/1.1
+PUT http://localhost:3000/todos/updateStatus/4 HTTP/1.1
 content-type: application/json
 
 {
@@ -22,10 +22,10 @@ content-type: application/json
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/4 HTTP/1.1
+DELETE http://localhost:3000/todos/40 HTTP/1.1
 
 ### PUT REQUEST
-PUT http://localhost:3000/todos/1 HTTP/1.1
+PUT http://localhost:3000/todos/3 HTTP/1.1
 content-type: application/json
 
 {
@@ -33,6 +33,3 @@ content-type: application/json
 	"description": "Clean all the dishes before the guests came",
 	"isCompleted": true
 }
-
-### Testing Deployed
-GET https://vanillanodetodos.herokuapp.com/todos/1 HTTP/1.1
