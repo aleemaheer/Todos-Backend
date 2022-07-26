@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-let store = class {
+class Store{
 	constructor(id, body) {
 		this.id = id;
 		this.body = body;
@@ -180,5 +180,5 @@ let store = class {
 };
 
 module.exports = {
-	store,
+	Store
 };

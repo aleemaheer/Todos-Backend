@@ -23,12 +23,12 @@ const server = http.createServer((req, res) => {
 
 	if (req.url === "/todos" && req.method === "GET") {
 		handleCors(req, res);
-		HandleTodos(req, res);
+		handleGetTodos(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
-		HandleCreateTodo(req, res);
+		handleCreateTodo(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
-		handleTodo(req, res, id);
+		handleGetTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
 		handleDeleteTodo(req, res, id);
@@ -40,25 +40,25 @@ const server = http.createServer((req, res) => {
 		req.method === "PUT"
 	) {
 		const id = req.url.split("/")[3];
-		handleTodoStatus(req, res, id);
+		handleUpdateTodoStatus(req, res, id);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });
 		res.end(JSON.stringify("Route not found"));
 	}
 });
 
-// Function to handle to returning todos
-async function HandleTodos(req, res) {
-	const todos = new store.store();
+// Function to handle to return todos
+async function handleGetTodos(req, res) {
+	const todos = new store.Store();
 	const response = await todos.getTodos();
 	res.writeHead(200, { "Content-Type": "application/json" });
 	res.end(JSON.stringify(response));
 }
 
-// Function to handle to returning todo
-async function handleTodo(req, res, id) {
+// Function to handle to return todo
+async function handleGetTodo(req, res, id) {
 	try {
-		const todos = new store.store(id);
+		const todos = new store.Store(id);
 		const response = await todos.getTodo();
 		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
@@ -76,7 +76,7 @@ async function handleTodo(req, res, id) {
 }
 
 // Function to handle create todo
-async function HandleCreateTodo(req, res) {
+async function handleCreateTodo(req, res) {
 	try {
 		let body = "";
 		req.on("data", (chunk) => {
@@ -84,7 +84,7 @@ async function HandleCreateTodo(req, res) {
 		});
 		req.on("end", async () => {
 			let id = 1;
-			const todos = new store.store(id, body);
+			const todos = new store.Store(id, body);
 			const response = await todos.createTodo();
 			if (response) {
 				res.writeHead(200, { "Content-type": "application/json" });
@@ -101,10 +101,10 @@ async function HandleCreateTodo(req, res) {
 	}
 }
 
-// Handle delete todo
+// Function to handle delete todo
 async function handleDeleteTodo(req, res, id) {
 	try {
-		const todos = new store.store(id);
+		const todos = new store.Store(id);
 		const response = await todos.deleteTodo();
 		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
@@ -121,14 +121,14 @@ async function handleDeleteTodo(req, res, id) {
 }
 
 // Function to update status of todo
-function handleTodoStatus(req, res, id) {
+function handleUpdateTodoStatus(req, res, id) {
 	try {
 		let body = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const todos = new store.store(id, body);
+			const todos = new store.Store(id, body);
 			const response = await todos.updateStatus();
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
@@ -145,7 +145,7 @@ function handleTodoStatus(req, res, id) {
 	}
 }
 
-// Function to update status
+// Function to update content of todo 
 function handleUpdateTodo(req, res, id) {
 	try {
 		let body = "";
@@ -153,7 +153,7 @@ function handleUpdateTodo(req, res, id) {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const todos = new store.store(id, body);
+			const todos = new store.Store(id, body);
 			const response = await todos.updateTodo();
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
