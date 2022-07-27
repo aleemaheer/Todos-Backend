@@ -1,21 +1,42 @@
-### GET All TODOS
-GET http://localhost:3000/todos HTTP/1.1
-
-### GET SINGLE TODO
-GET http://localhost:3000/todos/30 HTTP/1.1
-
-### POST REQUEST CREATE A NEW TODO
-POST http://localhost:3000/todos HTTP/1.1
+### Register API
+POST http://localhost:3000/register HTTP/1.1
 content-type: application/json
 
 {
-	"title": "Wash dishes",
-	"description": "Wash all the dishes before the guests came"
+	"userName": "ali",
+	"email": "ali@todos.com"
 }
 
-### UPDATE STATUS OF TODO
-PUT http://localhost:3000/todos/updateStatus/4 HTTP/1.1
+### Login
+POST http://localhost:3000/login HTTP/1.1
 content-type: application/json
+
+{
+	"email": "ali@todos.com"
+}
+
+### Post request for user to post his todos
+POST http://localhost:3000/todos/create HTTP/1.1
+content-type: application/json
+user_id: 1
+
+{
+	"title": "Wash clothes 2",
+	"description": "This is aleem's todos"
+}
+
+### GET All TODOS
+GET http://localhost:3000/todos HTTP/1.1
+user_id: 18
+
+### GET SINGLE TODO
+GET http://localhost:3000/todos/1 HTTP/1.1
+user_id: 2
+
+### UPDATE STATUS OF TODO
+PUT http://localhost:3000/todos/updateStatus/5 HTTP/1.1
+content-type: application/json
+user_id: 1
 
 {
 	"isCompleted": true
@@ -23,10 +44,12 @@ content-type: application/json
 
 ### DELETE REQUEST
 DELETE http://localhost:3000/todos/1 HTTP/1.1
+user_id: 1
 
 ### PUT REQUEST
 PUT http://localhost:3000/todos/3 HTTP/1.1
 content-type: application/json
+user-id: 1
 
 {
 	"title": "Clean dishes",

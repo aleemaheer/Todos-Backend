@@ -1,5 +1,6 @@
 const http = require("http");
-const store = require("./store");
+const todosStore = require("./todos");
+const userStore = require("./users");
 
 const server = http.createServer((req, res) => {
 	const headers = {
@@ -21,7 +22,15 @@ const server = http.createServer((req, res) => {
 	//	return;
 	//}
 
-	if (req.url === "/todos" && req.method === "GET") {
+	if (req.url === "/register" && req.method === "POST") {
+		handleRegisterUser(req, res);
+	} else if (req.url === "/login" && req.method === "POST") {
+		handleLogin(req, res);
+	}
+	else if (req.url === "/todos/create" && req.method === "POST") {
+		handleCreateTodo(req, res);
+	}
+	else if (req.url === "/todos" && req.method === "GET") {
 		handleCors(req, res);
 		handleGetTodos(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
@@ -47,53 +56,20 @@ const server = http.createServer((req, res) => {
 	}
 });
 
-// Function to handle to return todos
-async function handleGetTodos(req, res) {
-	const todos = new store.Store();
-	const response = await todos.getTodos();
-	res.writeHead(200, { "Content-Type": "application/json" });
-	res.end(JSON.stringify(response));
-}
-
 // Function to handle to return todo
 async function handleGetTodo(req, res, id) {
 	try {
-		const todos = new store.Store(id);
+		const userId = parseInt(req.headers.user_id);
+		body = "js";
+		const todos = new todosStore.Store(userId, id, body);
 		const response = await todos.getTodo();
 		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
-			console.log(response);
 			res.end(JSON.stringify("Todo not found"));
 		} else {
 			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
+			res.end(response);
 		}
-	} catch (err) {
-		console.log(err);
-		res.writeHead(503, { "Content-Type": "application/json" });
-		res.end();
-	}
-}
-
-// Function to handle create todo
-async function handleCreateTodo(req, res) {
-	try {
-		let body = "";
-		req.on("data", (chunk) => {
-			body += chunk;
-		});
-		req.on("end", async () => {
-			let id = 1;
-			const todos = new store.Store(id, body);
-			const response = await todos.createTodo();
-			if (response) {
-				res.writeHead(200, { "Content-type": "application/json" });
-				res.end(response);
-			} else {
-				res.end();
-				console.log("Response is " + response);
-			}
-		});
 	} catch (err) {
 		console.log(err);
 		res.writeHead(503, { "Content-Type": "application/json" });
@@ -104,14 +80,15 @@ async function handleCreateTodo(req, res) {
 // Function to handle delete todo
 async function handleDeleteTodo(req, res, id) {
 	try {
-		const todos = new store.Store(id);
+		const userId = req.headers.user_id;
+		const todos = new todosStore.Store(userId, id);
 		const response = await todos.deleteTodo();
 		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
 			res.end(JSON.stringify("Todo not found"));
 		} else {
 			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
+			res.end(response);
 		}
 	} catch (err) {
 		console.log(err);
@@ -128,8 +105,9 @@ function handleUpdateTodoStatus(req, res, id) {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const todos = new store.Store(id, body);
-			const response = await todos.updateStatus();
+			const userId = req.headers.user_id
+			const todos = new todosStore.Store(userId, id, body);
+			const response = await todos.updateTodoStatus();
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
 				res.end(JSON.stringify("Todo not found"));
@@ -153,7 +131,7 @@ function handleUpdateTodo(req, res, id) {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const todos = new store.Store(id, body);
+			const todos = new todosStore.Store(id, body);
 			const response = await todos.updateTodo();
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
@@ -183,6 +161,112 @@ function handleCors(req, res) {
 		res.setHeader("Access-Control-Allow-Credentials", true);
 		res.statusCode = 200;
 }
+
+// Function to handle register user, post request
+function handleRegisterUser(req, res) {
+	try {
+		let body = '';
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			const users = new userStore.Users(body);
+			const response = await users.register();
+			if (!response) {
+				res.writeHead(502, { "Content-Type": "application/json"});
+				res.end();
+			} else if (response === 'emailNotAcceptable') {
+				res.writeHead(200, {"Content-Type": "application/json"});
+				res.end(JSON.stringify("Sorry this email already exists, please try another"));
+			}
+			else {
+				res.writeHead(200, { "Content-Type": "application/json"});
+				res.end(response);
+			}
+		})
+	}
+	catch (err) {
+		console.log(err);
+		res.writeHead(503, {"Content-Type": "application/json"});
+		res.end();
+	}
+}
+
+// Function to handle create todo testing
+function handleCreateTodo(req, res) {
+	try {
+		let body = '';
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			const userId = parseInt(req.headers.user_id);
+			let todoId = 1;
+			const todos = new todosStore.Store(userId, todoId, body);
+			const response = await todos.createTodo();
+			if (!response) {
+				res.writeHead(404, { "Content-Type": "application/json"});
+				res.end(JSON.stringify("This user id does not exist, please register to create todos"));
+			} else {
+				res.writeHead(200, {"Content-Type": "application/json"});
+				res.end(response);
+			}
+		})
+	}
+	catch (err) {
+		console.log(err);
+		res.writeHead(503, {"Content-Type": "application/json"});
+		res.end();
+	}
+}
+
+// Function to handle get todos
+async function handleGetTodos(req, res) {
+	try {
+	const userId = parseInt(req.headers.user_id);
+	const todos = new todosStore.Store(userId);
+	const response = await todos.getTodosTesting();
+	if (!response) {
+		res.writeHead(404, {"Content-Type": "application/json"});
+		res.end(JSON.stringify("Todo not found"));
+	} else {
+		res.writeHead(200, {"Content-Type": "application/json"});
+		res.end(response);
+	}
+	} 
+	catch (err) {
+		console.log(err);
+		res.writeHead(503, {"Content-Type": "application/json"});
+		res.end();
+	}
+}
+
+// Function to handle login post request
+function handleLogin(req, res) {
+	try {
+		let body = '';
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			const users = new userStore.Users(body);
+			const response = await users.login();
+			if (!response) {
+				res.writeHead(404, {"Content-Type": "application/json"});
+				res.end(JSON.stringify("You have not registered yet, please register"));
+			} else {
+				res.writeHead(200, {"Content-Type": "application/json"});
+				res.end(response);
+			}
+		})
+	}
+	catch (err) {
+		console.log(err);
+		res.writeHead(503, {"Content-Type": "application/json"});
+		res.end();
+	}
+}
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log("Server is listening on 3000"));
