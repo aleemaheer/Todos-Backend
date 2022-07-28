@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = "./data";
 
-class Store {
+class Todo {
 	constructor(userId, id, body) {
 		this.userId = userId;
 		this.id = id;
@@ -50,7 +50,7 @@ class Store {
 				let filteredTodos = [];
 				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
 					if (err) {
-						console.log(data);
+						console.log(err);
 						reject();
 					}
 					data = JSON.parse(data);
@@ -85,7 +85,7 @@ class Store {
 									}
 								}
 								resolve(JSON.stringify(filteredTodos));
-							})
+							});
 						});
 					}
 				});
@@ -99,35 +99,38 @@ class Store {
 			if (!fs.existsSync("./data/todos.json")) {
 				resolve();
 			} else {
-			fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-				if (err) {
-					console.log(err);
-					reject();
-				}
-				data = JSON.parse(data);
-				let targetTodo;
-				this.body = JSON.parse(this.body);
-				for (let i = 0; i < data.length; i++) {
-					if (data[i].todoId === parseInt(this.id) && data[i].userId === parseInt(this.userId)) {
-						targetTodo = i;
-						break;
+				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
+					if (err) {
+						console.log(err);
+						reject();
 					}
-				}
-				if (targetTodo || targetTodo === 0) {
-					data[targetTodo].isCompleted = this.body.isCompleted;
-					fs.writeFile("./data/todos.json", JSON.stringify(data), (err) => {
-						if (err) {
-							console.log(err);
-							reject();
+					data = JSON.parse(data);
+					let targetTodo;
+					this.body = JSON.parse(this.body);
+					for (let i = 0; i < data.length; i++) {
+						if (
+							data[i].todoId === parseInt(this.id) &&
+							data[i].userId === parseInt(this.userId)
+						) {
+							targetTodo = i;
+							break;
 						}
-						// File written successfully
-					});
-					resolve(data[targetTodo]);
-				} else {
-					resolve();
-				}
-			});
-		}
+					}
+					if (targetTodo || targetTodo === 0) {
+						data[targetTodo].isCompleted = this.body.isCompleted;
+						fs.writeFile("./data/todos.json", JSON.stringify(data), (err) => {
+							if (err) {
+								console.log(err);
+								reject();
+							}
+							// File written successfully
+						});
+						resolve(data[targetTodo]);
+					} else {
+						resolve();
+					}
+				});
+			}
 		});
 	}
 
@@ -146,7 +149,10 @@ class Store {
 					}
 					data = JSON.parse(data);
 					for (let i = 0; i < data.length; i++) {
-						if (data[i].userId === parseInt(this.userId) && data[i].todoId === parseInt(this.id)) {
+						if (
+							data[i].userId === parseInt(this.userId) &&
+							data[i].todoId === parseInt(this.id)
+						) {
 							targetTodo = i;
 							break;
 						}
@@ -155,46 +161,52 @@ class Store {
 					if (!targetTodo && targetTodo !== 0) {
 						resolve();
 					} else {
-					data[targetTodo].title = this.body.title;
-					data[targetTodo].description = this.body.description;
-					fs.writeFile("./data/todos.json", JSON.stringify(data), (err, data) => {
-						if (err) {
-							console.log(err);
-							reject();
-						}
-						// File written
-					})
-					console.log(JSON.stringify(data[targetTodo]));
-					resolve(JSON.stringify(data[targetTodo]));
-				}
-				})
+						data[targetTodo].title = this.body.title;
+						data[targetTodo].description = this.body.description;
+						fs.writeFile(
+							"./data/todos.json",
+							JSON.stringify(data),
+							(err, data) => {
+								if (err) {
+									console.log(err);
+									reject();
+								}
+								// File written
+							}
+						);
+						resolve(JSON.stringify(data[targetTodo]));
+					}
+				});
 			}
-			});
+		});
 	}
 
 	// Create a new todo testing
 	createTodo() {
 		return new Promise((resolve, reject) => {
-				if (!fs.existsSync("./data/users.json")) {
-					resolve();
-				} else {
-					if (!fs.existsSync("./data/todos.json")) fs.writeFileSync("./data/todos.json", JSON.stringify([]));
-					fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-						if (err) {
-							console.log(err);
-							reject();
+			if (!fs.existsSync("./data/users.json")) {
+				resolve();
+			} else {
+				if (!fs.existsSync("./data/todos.json"))
+					fs.writeFileSync("./data/todos.json", JSON.stringify([]));
+				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
+					if (err) {
+						console.log(err);
+						reject();
+					}
+					data = JSON.parse(data);
+					this.body = JSON.parse(this.body);
+					const users = JSON.parse(
+						fs.readFileSync("./data/users.json", "utf-8")
+					);
+					let existUser = false;
+					for (let i = 0; i < users.length; i++) {
+						if (users[i].userId === this.userId) {
+							existUser = true;
+							break;
 						}
-						data = JSON.parse(data);
-						this.body = JSON.parse(this.body);
-						const users = JSON.parse(fs.readFileSync("./data/users.json", "utf-8"));
-						let existUser = false;
-						for (let i = 0; i < users.length; i++) {
-							if (users[i].userId === this.userId) {
-								existUser = true;
-								break;
-							}
-						}
-						if (existUser) {
+					}
+					if (existUser) {
 						let id = data.length;
 						id++;
 						let todo = {
@@ -223,13 +235,13 @@ class Store {
 									filteredTodos.push(data[i]);
 								}
 							}
-							resolve((filteredTodos));
-						})
+							resolve(filteredTodos);
+						});
 					} else {
 						resolve();
 					}
-					});
-				}
+				});
+			}
 		});
 	}
 
@@ -252,11 +264,10 @@ class Store {
 							filteredTodos.push(data[i]);
 						}
 					}
-					console.log(filteredTodos);
 					if (!filteredTodos[0]) {
-						resolve();
+						resolve(JSON.stringify([]));
 					} else {
-					resolve(JSON.stringify(filteredTodos));
+						resolve(JSON.stringify(filteredTodos));
 					}
 				});
 			}
@@ -265,5 +276,5 @@ class Store {
 }
 
 module.exports = {
-	Store,
+	Todo,
 };

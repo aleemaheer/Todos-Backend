@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = "./data";
 
-class Users {
+class User {
 	constructor(body) {
 		this.body = body;
 	}
@@ -10,7 +10,7 @@ class Users {
 	register() {
 		return new Promise((resolve, reject) => {
 			this.body = JSON.parse(this.body);
-            if (!fs.existsSync(path)) fs.mkdirSync("data");
+			if (!fs.existsSync(path)) fs.mkdirSync("data");
 			if (!fs.existsSync("./data/users.json")) {
 				fs.writeFileSync("./data/users.json", JSON.stringify([]));
 			}
@@ -47,45 +47,44 @@ class Users {
 						resolve(JSON.stringify(newUser));
 					});
 				} else {
-                    resolve("emailNotAcceptable");
-                }
+					resolve("emailNotAcceptable");
+				}
 			});
 		});
 	}
 
-    // Login
-    login() {
-        return new Promise((resolve, reject) => {
-        try {
-            this.body = JSON.parse(this.body);
-            let userObject;
-            if (!fs.existsSync(path) || !fs.existsSync("./data/users.json")) {
-                resolve();
-            } else {
-                fs.readFile("./data/users.json", "utf-8", (err, data) => {
-                    if (err) {
-                        console.log(err);
-                        reject();
-                    }
-                    data = JSON.parse(data);
-                    for (let i = 0; i < data.length; i++) {
-                        if (this.body.email === data[i].email) {
-                            userObject = data[i];
-                            break;
-                        }
-                    }
-                    resolve(JSON.stringify(userObject));
-                })
-            }
-        }
-        catch (err) {
-            console.log(err);
-            reject();
-        }
-    })
-    }
+	// Login
+	login() {
+		return new Promise((resolve, reject) => {
+			try {
+				this.body = JSON.parse(this.body);
+				let userObject;
+				if (!fs.existsSync(path) || !fs.existsSync("./data/users.json")) {
+					resolve();
+				} else {
+					fs.readFile("./data/users.json", "utf-8", (err, data) => {
+						if (err) {
+							console.log(err);
+							reject();
+						}
+						data = JSON.parse(data);
+						for (let i = 0; i < data.length; i++) {
+							if (this.body.email === data[i].email) {
+								userObject = data[i];
+								break;
+							}
+						}
+						resolve(JSON.stringify(userObject));
+					});
+				}
+			} catch (err) {
+				console.log(err);
+				reject();
+			}
+		});
+	}
 }
 
 module.exports = {
-	Users,
+	User,
 };
