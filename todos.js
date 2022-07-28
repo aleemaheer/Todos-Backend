@@ -77,6 +77,7 @@ class Store {
 				resolve();
 			} else {
 				let targetTodo = -1;
+				let filteredTodos = [];
 				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
 					if (err) {
 						console.log(data);
@@ -92,7 +93,6 @@ class Store {
 							break;
 						}
 					}
-					console.log(targetTodo);
 					if (targetTodo === -1) {
 						resolve();
 					} else {
@@ -103,8 +103,19 @@ class Store {
 								reject();
 							}
 							// file writed
-							console.log("file");
-							resolve(JSON.stringify(data));
+							fs.readFile("./data/todos.json", "utf-8", (err, data) => {
+								if (err) {
+									console.log(err);
+									reject();
+								}
+								data = JSON.parse(data);
+								for (let i = 0; i < data.length; i++) {
+									if (data[i].userId === parseInt(this.userId)) {
+										filteredTodos.push(data[i]);
+									}
+								}
+								resolve(JSON.stringify(filteredTodos));
+							})
 						});
 					}
 				});
@@ -132,9 +143,9 @@ class Store {
 						break;
 					}
 				}
-				if (targetTodo) {
+				if (targetTodo || targetTodo === 0) {
 					data[targetTodo].isCompleted = this.body.isCompleted;
-					fs.writeFile("./data/data.json", JSON.stringify(data), (err) => {
+					fs.writeFile("./data/todos.json", JSON.stringify(data), (err) => {
 						if (err) {
 							console.log(err);
 							reject();
@@ -153,39 +164,42 @@ class Store {
 	// Update todo
 	updateTodo() {
 		return new Promise((resolve, reject) => {
-			if (!fs.existsSync(path)) {
-				fs.mkdirSync("data");
-				fs.writeFileSync("./data/data.json", JSON.stringify([]));
-			}
-			fs.readFile("./data/data.json", "utf-8", (err, data) => {
-				if (err) {
-					console.log(err);
-					reject();
-				}
-				data = JSON.parse(data);
+			if (!fs.existsSync("./data/todos.json")) {
+				resolve();
+			} else {
 				this.body = JSON.parse(this.body);
-				let targetTodo = -1;
-				for (let i = 0; i < data.length; i++) {
-					if (data[i].id === parseInt(this.id)) {
-						targetTodo = i;
+				let targetTodo;
+				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
+					if (err) {
+						console.log(err);
+						reject();
 					}
-				}
-				if (targetTodo !== -1) {
+					data = JSON.parse(data);
+					for (let i = 0; i < data.length; i++) {
+						if (data[i].userId === parseInt(this.userId) && data[i].todoId === parseInt(this.id)) {
+							targetTodo = i;
+							break;
+						}
+					}
+					// Update todo
+					if (!targetTodo && targetTodo !== 0) {
+						resolve();
+					} else {
 					data[targetTodo].title = this.body.title;
 					data[targetTodo].description = this.body.description;
-					fs.writeFile("./data/data.json", JSON.stringify(data), (err) => {
+					fs.writeFile("./data/todos.json", JSON.stringify(data), (err, data) => {
 						if (err) {
 							console.log(err);
 							reject();
 						}
-						// File written successful
-					});
-					resolve(data[targetTodo]);
-				} else {
-					resolve();
+						// File written
+					})
+					console.log(JSON.stringify(data[targetTodo]));
+					resolve(JSON.stringify(data[targetTodo]));
 				}
+				})
+			}
 			});
-		});
 	}
 
 	// Create a new todo testing
@@ -210,7 +224,6 @@ class Store {
 								break;
 							}
 						}
-						console.log(existUser);
 						if (existUser) {
 						let id = data.length;
 						id++;
@@ -236,13 +249,12 @@ class Store {
 							}
 							data = JSON.parse(data);
 							for (let i = 0; i < data.length; i++) {
-								if (data[i].userId === this.userId) {
-									filteredTodos += data[i];
+								if (data[i].userId === parseInt(this.userId)) {
+									filteredTodos.push(data[i]);
 								}
 							}
+							resolve((filteredTodos));
 						})
-						console.log(data);
-						resolve(JSON.stringify(filteredTodos));
 					} else {
 						resolve();
 					}
@@ -252,7 +264,7 @@ class Store {
 	}
 
 	// Get Todos with user id
-	getTodosTesting() {
+	getTodos() {
 		return new Promise((resolve, reject) => {
 			if (!fs.existsSync(path) || !fs.existsSync("./data/todos.json")) {
 				resolve();
@@ -264,13 +276,18 @@ class Store {
 					}
 					data = JSON.parse(data);
 					let filteredTodos = [];
-					for (let i = 0; i < data.length; i++) {
+					let i = 1;
+					for (i = 0; i < data.length; i++) {
 						if (data[i].userId === parseInt(this.userId)) {
 							filteredTodos.push(data[i]);
 						}
 					}
 					console.log(filteredTodos);
+					if (!filteredTodos[0]) {
+						resolve();
+					} else {
 					resolve(JSON.stringify(filteredTodos));
+					}
 				});
 			}
 		});

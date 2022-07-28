@@ -45,7 +45,7 @@ const server = http.createServer((req, res) => {
 		const id = req.url.split("/")[2];
 		handleUpdateTodo(req, res, id);
 	} else if (
-		req.url.match(/\/todos\/updateStatus\/([0-9]+)/) &&
+		req.url.match(/\/todos\/update-status\/([0-9]+)/) &&
 		req.method === "PUT"
 	) {
 		const id = req.url.split("/")[3];
@@ -131,14 +131,16 @@ function handleUpdateTodo(req, res, id) {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const todos = new todosStore.Store(id, body);
+			const userId = req.headers.user_id;
+			console.log("User id " + userId)
+			const todos = new todosStore.Store(userId, id, body);
 			const response = await todos.updateTodo();
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
 				res.end(JSON.stringify("Todo not found"));
 			} else {
 				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(response));
+				res.end(response);
 			}
 		});
 	} catch (err) {
@@ -209,7 +211,7 @@ function handleCreateTodo(req, res) {
 				res.end(JSON.stringify("This user id does not exist, please register to create todos"));
 			} else {
 				res.writeHead(200, {"Content-Type": "application/json"});
-				res.end(response);
+				res.end(JSON.stringify(response));
 			}
 		})
 	}
@@ -225,7 +227,7 @@ async function handleGetTodos(req, res) {
 	try {
 	const userId = parseInt(req.headers.user_id);
 	const todos = new todosStore.Store(userId);
-	const response = await todos.getTodosTesting();
+	const response = await todos.getTodos();
 	if (!response) {
 		res.writeHead(404, {"Content-Type": "application/json"});
 		res.end(JSON.stringify("Todo not found"));
