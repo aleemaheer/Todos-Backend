@@ -8,36 +8,6 @@ class Store {
 		this.body = body;
 	}
 
-	// Get todos
-	getTodos() {
-		return new Promise((resolve, reject) => {
-			if (fs.existsSync(path)) {
-				fs.readFile("./data/data.json", "utf-8", (err, data) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					resolve(JSON.parse(data));
-				});
-			} else {
-				fs.mkdirSync("data");
-				let data = [];
-				fs.writeFile(
-					"./data/data.json",
-					JSON.stringify(data),
-					{ flag: "a+" },
-					(err) => {
-						if (err) {
-							console.log(err);
-							reject();
-						}
-						resolve();
-					}
-				);
-			}
-		});
-	}
-
 	// Get Todo
 	getTodo() {
 		return new Promise((resolve, reject) => {

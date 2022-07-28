@@ -16,9 +16,9 @@ content-type: application/json
 }
 
 ### Post request for user to post his todos
-POST http://localhost:3000/todos/create HTTP/1.1
+POST http://localhost:3000/create-todo HTTP/1.1
 content-type: application/json
-user_id: 2
+user_id: 1
 
 {
 	"title": "Wash clothes 2",
@@ -26,15 +26,15 @@ user_id: 2
 }
 
 ### GET All TODOS
-GET http://localhost:3000/todos HTTP/1.1
-user_id: 2
+GET http://localhost:3000/get-todos HTTP/1.1
+user_id: 1
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/4 HTTP/1.1
-user_id: 2
+GET http://localhost:3000/get-todo/2 HTTP/1.1
+user_id: 1
 
 ### UPDATE STATUS OF TODO
-PUT http://localhost:3000/todos/update-status/1 HTTP/1.1
+PUT http://localhost:3000/update-todo-status/2 HTTP/1.1
 content-type: application/json
 user_id: 1
 
@@ -43,11 +43,11 @@ user_id: 1
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/4 HTTP/1.1
-user_id: 20
+DELETE http://localhost:3000/delete-todo/2 HTTP/1.1
+user_id: 1
 
 ### PUT REQUEST
-PUT http://localhost:3000/todos/1 HTTP/1.1
+PUT http://localhost:3000/update-todo/1 HTTP/1.1
 content-type: application/json
 user_id: 1
 

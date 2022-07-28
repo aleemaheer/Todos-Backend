@@ -27,28 +27,26 @@ const server = http.createServer((req, res) => {
 	} else if (req.url === "/login" && req.method === "POST") {
 		handleLogin(req, res);
 	}
-	else if (req.url === "/todos/create" && req.method === "POST") {
+	else if (req.url === "/create-todo" && req.method === "POST") {
 		handleCreateTodo(req, res);
 	}
-	else if (req.url === "/todos" && req.method === "GET") {
+	else if (req.url === "/get-todos" && req.method === "GET") {
 		handleCors(req, res);
 		handleGetTodos(req, res);
-	} else if (req.url === "/todos" && req.method === "POST") {
-		handleCreateTodo(req, res);
-	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
+	} else if (req.url.match(/\/get-todo\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
 		handleGetTodo(req, res, id);
-	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
+	} else if (req.url.match(/\/delete-todo\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
 		handleDeleteTodo(req, res, id);
-	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
+	} else if (req.url.match(/\/update-todo\/([0-9]+)/) && req.method === "PUT") {
 		const id = req.url.split("/")[2];
 		handleUpdateTodo(req, res, id);
 	} else if (
-		req.url.match(/\/todos\/update-status\/([0-9]+)/) &&
+		req.url.match(/\/update-todo-status\/([0-9]+)/) &&
 		req.method === "PUT"
 	) {
-		const id = req.url.split("/")[3];
+		const id = req.url.split("/")[2];
 		handleUpdateTodoStatus(req, res, id);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });
@@ -271,4 +269,4 @@ function handleLogin(req, res) {
 
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("Server is listening on 3000"));
+server.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
