@@ -1,14 +1,34 @@
 const http = require("http");
-const store = require("./store");
+const todosStore = require("./todos");
+const userStore = require("./users");
 
 const server = http.createServer((req, res) => {
-	if (req.url === "/todos" && req.method === "GET") {
-		handleTodos(req, res);
+	const headers = {
+		"Access-Control-Allow-Origin": "*",
+		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, DELETE, PUT",
+		"Access-Control-Allow-Headers":
+			"Origin, X-Requested-With, Content-Type, Accept",
+		"Access-Control-Allow-Credentials": true,
+	};
+
+	if (req.method === "OPTIONS") {
+		res.writeHead(204, headers);
+		res.end();
+		return;
+	}
+
+	if (req.url === "/register" && req.method === "POST") {
+		handleRegisterUser(req, res);
+	} else if (req.url === "/login" && req.method === "POST") {
+		handleLogin(req, res);
 	} else if (req.url === "/todos" && req.method === "POST") {
 		handleCreateTodo(req, res);
+	} else if (req.url === "/todos" && req.method === "GET") {
+		handleCors(req, res);
+		handleGetTodos(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
 		const id = req.url.split("/")[2];
-		HandleTodo(req, res, id);
+		handleGetTodo(req, res, id);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
 		const id = req.url.split("/")[2];
 		handleDeleteTodo(req, res, id);
@@ -16,55 +36,31 @@ const server = http.createServer((req, res) => {
 		const id = req.url.split("/")[2];
 		handleUpdateTodo(req, res, id);
 	} else if (
-		req.url.match(/\/todos\/updateStatus\/([0-9]+)/) &&
+		req.url.match(/\/todos\/update-status\/([0-9]+)/) &&
 		req.method === "PUT"
 	) {
 		const id = req.url.split("/")[3];
-		handleChangeStatus(req, res, id);
+		handleUpdateTodoStatus(req, res, id);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });
 		res.end(JSON.stringify("Route not found"));
 	}
 });
 
-// Function to get all todos
-async function handleTodos(req, res) {
-	const todos = await store.getTodos();
-	res.writeHead(200, { "Content-Type": "application/json" });
-	res.end(JSON.stringify(todos));
-}
-
-// Function to get a single todo
-async function HandleTodo(req, res, id) {
+// Function to handle to return todo
+async function handleGetTodo(req, res, id) {
 	try {
-		let todo = await store.getTodo(id);
-		if (!todo) {
+		const userId = parseInt(req.headers.user_id);
+		body = "js";
+		const todos = new todosStore.Todo(userId, id, body);
+		const response = await todos.getTodo();
+		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
-			res.end(JSON.stringify({ message: "Todo not found" }));
+			res.end(JSON.stringify("Todo not found"));
 		} else {
 			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(todo));
+			res.end(response);
 		}
-	} catch (err) {
-		console.log(err.message);
-		res.writeHead(503, { "Content-Type": "application/json" });
-		res.end();
-	}
-}
-
-
-// Function to handle create todo request
-function handleCreateTodo(req, res) {
-	try {
-		let body = "";
-		req.on("data", (chunk) => {
-			body += chunk;
-		});
-		req.on("end", async () => {
-			const response = await store.createTodo(body);
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
-		});
 	} catch (err) {
 		console.log(err);
 		res.writeHead(503, { "Content-Type": "application/json" });
@@ -75,36 +71,40 @@ function handleCreateTodo(req, res) {
 // Function to handle delete todo
 async function handleDeleteTodo(req, res, id) {
 	try {
-		let response = await store.deleteTodo(id);
-		if (response) {
-			res.writeHead(200, { "Content-Type": "application/json" });
-			res.end(JSON.stringify(response));
-		} else {
+		const userId = req.headers.user_id;
+		const todos = new todosStore.Todo(userId, id);
+		const response = await todos.deleteTodo();
+		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
-			res.end(JSON.stringify({ message: "Todo not found" }));
+			res.end(JSON.stringify("Todo not found"));
+		} else {
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(response);
 		}
 	} catch (err) {
-		res.writeHead(503, { "Content-Type": "text/plain" });
 		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
 		res.end();
 	}
 }
 
-// Function to handle for changing status of todo
-function handleChangeStatus(req, res, id) {
+// Function to update status of todo
+function handleUpdateTodoStatus(req, res, id) {
 	try {
 		let body = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const response = await store.changeStatus(id, body);
-			if (response) {
+			const userId = req.headers.user_id;
+			const todos = new todosStore.Todo(userId, id, body);
+			const response = await todos.updateTodoStatus();
+			if (!response) {
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end(JSON.stringify("Todo not found"));
+			} else {
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify(response));
-			} else {
-				res.writeHead(404, { "Content-Type": "application/json" });
-				res.end(JSON.stringify({ message: "Todo not found" }));
 			}
 		});
 	} catch (err) {
@@ -114,7 +114,7 @@ function handleChangeStatus(req, res, id) {
 	}
 }
 
-// Function to handle update todo
+// Function to update content of todo
 function handleUpdateTodo(req, res, id) {
 	try {
 		let body = "";
@@ -122,13 +122,16 @@ function handleUpdateTodo(req, res, id) {
 			body += chunk;
 		});
 		req.on("end", async () => {
-			const response = await store.updateTodo(id, body);
-			if (response) {
-				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(response));
+			const userId = req.headers.user_id;
+			console.log("User id " + userId);
+			const todos = new todosStore.Todo(userId, id, body);
+			const response = await todos.updateTodo();
+			if (!response) {
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end(JSON.stringify("Todo not found"));
 			} else {
-				res.writeHead(404, {"Content-Type": "application/json"});
-				res.end(JSON.stringify({message: "Todo not found"}));
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(response);
 			}
 		});
 	} catch (err) {
@@ -138,5 +141,122 @@ function handleUpdateTodo(req, res, id) {
 	}
 }
 
+function handleCors(req, res) {
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader(
+		"Access-Control-Allow-Headers",
+		"Origin, X-Requested-With, Content-Type, Accept"
+	);
+	res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE,PATCH");
+	res.setHeader("Access-Control-Allow-Credentials", true);
+	res.statusCode = 200;
+}
 
-server.listen(3000, () => console.log("Server is listening on 3000"));
+// Function to handle register user, post request
+function handleRegisterUser(req, res) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			const users = new userStore.User(body);
+			const response = await users.register();
+			if (!response) {
+				res.writeHead(502, { "Content-Type": "application/json" });
+				res.end();
+			} else if (response === "emailNotAcceptable") {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(
+					JSON.stringify("Sorry this email already exists, please try another")
+				);
+			} else {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(response);
+			}
+		});
+	} catch (err) {
+		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
+		res.end();
+	}
+}
+
+// Function to handle create todo testing
+function handleCreateTodo(req, res) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			const userId = parseInt(req.headers.user_id);
+			let todoId = 1;
+			const todos = new todosStore.Todo(userId, todoId, body);
+			const response = await todos.createTodo();
+			if (!response) {
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end(
+					JSON.stringify(
+						"This user id does not exist, please register to create todos"
+					)
+				);
+			} else {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+			}
+		});
+	} catch (err) {
+		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
+		res.end();
+	}
+}
+
+// Function to handle get todos
+async function handleGetTodos(req, res) {
+	try {
+		const userId = parseInt(req.headers.user_id);
+		const todos = new todosStore.Todo(userId);
+		const response = await todos.getTodos();
+		if (!response) {
+			res.writeHead(404, { "Content-Type": "application/json" });
+			res.end(JSON.stringify("Todo not found"));
+		} else {
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(response);
+		}
+	} catch (err) {
+		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
+		res.end();
+	}
+}
+
+// Function to handle login post request
+function handleLogin(req, res) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			const users = new userStore.User(body);
+			const response = await users.login();
+			if (!response) {
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end(JSON.stringify("You have not registered yet, please register"));
+			} else {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(response);
+			}
+		});
+	} catch (err) {
+		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
+		res.end();
+	}
+}
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
