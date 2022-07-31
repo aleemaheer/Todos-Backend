@@ -5,7 +5,7 @@ const userStore = require("./users");
 const server = http.createServer((req, res) => {
 	const headers = {
 		"Access-Control-Allow-Origin": "*",
-		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, DELETE, PUT",
+		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, DELETE, PUT, PATCH",
 		"Access-Control-Allow-Headers":
 			"Origin, X-Requested-With, Content-Type, Accept",
 		"Access-Control-Allow-Credentials": true,
@@ -36,10 +36,10 @@ const server = http.createServer((req, res) => {
 		const id = req.url.split("/")[2];
 		handleUpdateTodo(req, res, id);
 	} else if (
-		req.url.match(/\/todos\/update-status\/([0-9]+)/) &&
-		req.method === "PUT"
+		req.url.match(/\/todos\/([0-9]+)/) &&
+		req.method === "PATCH"
 	) {
-		const id = req.url.split("/")[3];
+		const id = req.url.split("/")[2];
 		handleUpdateTodoStatus(req, res, id);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });

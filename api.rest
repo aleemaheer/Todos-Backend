@@ -15,7 +15,7 @@ content-type: application/json
 	"email": "aleem@todos.com"
 }
 
-### Post request for user to post his todos
+### POST REQUEST TO CREATE TODO
 POST http://localhost:3000/todos HTTP/1.1
 content-type: application/json
 user_id: 1
@@ -33,26 +33,26 @@ user_id: 1
 GET http://localhost:3000/todos/1 HTTP/1.1
 user_id: 19
 
-### UPDATE STATUS OF TODO
-PUT http://localhost:3000/todos/update-status/1 HTTP/1.1
+### PATCH REQUEST TO UPDATE STATUS OF TODO
+PATCH http://localhost:3000/todos/1 HTTP/1.1
 content-type: application/json
 user_id: 1
 
 {
-	"isCompleted": true
+	"isCompleted" : true
 }
 
 ### DELETE REQUEST
 DELETE http://localhost:3000/todos/1 HTTP/1.1
 user_id: 1
 
-### PUT REQUEST
-PUT http://localhost:3000/todos/2 HTTP/1.1
+### PUT REQUEST TO UPDATE TODO
+PUT http://localhost:3000/todos/1 HTTP/1.1
 content-type: application/json
 user_id: 1
 
 {
 	"title": "Clean dishes",
 	"description": "Clean all the dishes before the guests came",
-	"isCompleted": true
+	"isCompleted": false
 }
