@@ -12,16 +12,24 @@ const server = http.createServer((req, res) => {
 	};
 
 	if (req.method === "OPTIONS") {
-		res.writeHead(204, headers);
-		res.end();
-		return;
+		res.writeHead(204, headers); res.end(); return;
 	}
 
 	if (req.url === "/register" && req.method === "POST") {
 		handleRegisterUser(req, res);
 	} else if (req.url === "/login" && req.method === "POST") {
 		handleLogin(req, res);
-	} else if (req.url === "/todos" && req.method === "POST") {
+	} else if (req.url === "/todos" || req.url.match(/\/todos\/([0-9]+)/)) {
+		handleTodosRoutes(req, res);
+	} else {
+		res.writeHead(502, { "Content-Type": "application/json" });
+		res.end(JSON.stringify("Route not found"));
+	}
+});
+
+// Function to handle todos routes
+function handleTodosRoutes(req, res) {
+	if (req.url === "/todos" && req.method === "POST") {
 		handleCreateTodo(req, res);
 	} else if (req.url === "/todos" && req.method === "GET") {
 		handleCors(req, res);
@@ -41,11 +49,8 @@ const server = http.createServer((req, res) => {
 	) {
 		const id = req.url.split("/")[2];
 		handleUpdateTodoStatus(req, res, id);
-	} else {
-		res.writeHead(502, { "Content-Type": "application/json" });
-		res.end(JSON.stringify("Route not found"));
-	}
-});
+}
+}
 
 // Function to handle to return todo
 async function handleGetTodo(req, res, id) {

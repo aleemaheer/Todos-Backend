@@ -5,3 +5,11 @@
 
 #### Breakdown:
 * There will be one to many relation betweeen a user and todos, single user can own multiple todos, but single todo cannot own multiple users.
+
+
+###### Methods to look: 
+* map
+* include
+* filter
+* reduce
+* some
