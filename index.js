@@ -12,9 +12,7 @@ const server = http.createServer((req, res) => {
 	};
 
 	if (req.method === "OPTIONS") {
-		res.writeHead(204, headers);
-		res.end();
-		return;
+		res.writeHead(204, headers); res.end(); return;
 	}
 
 	if (req.url === "/register" && req.method === "POST") {

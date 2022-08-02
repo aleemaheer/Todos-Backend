@@ -225,19 +225,13 @@ class Todo {
 								reject();
 							}
 						});
-						let filteredTodos = [];
 						fs.readFile("./data/todos.json", "utf-8", (err, data) => {
 							if (err) {
 								console.log(err);
 								reject();
 							}
 							data = JSON.parse(data);
-							for (let i = 0; i < data.length; i++) {
-								if (data[i].userId === parseInt(this.userId)) {
-									filteredTodos.push(data[i]);
-								}
-							}
-							resolve(filteredTodos);
+							resolve(todo);
 						});
 					} else {
 						resolve();
