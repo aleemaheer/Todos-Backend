@@ -15,23 +15,23 @@ class Todo {
 				if (!fs.existsSync(path) || !fs.existsSync("./data/todos.json")) {
 					resolve();
 				} else {
-					// let targetTodo;
+					let targetTodo;
 					fs.readFile("./data/todos.json", "utf-8", (err, data) => {
 						if (err) {
 							console.log(err);
 							reject();
 						}
 						data = JSON.parse(data);
-						// for (let i = 0; i < data.length; i++) {
-						// 	if (
-						// 		data[i].userId === this.userId &&
-						// 		parseInt(data[i].todoId) === parseInt(this.id)
-						// 	) {
-						// 		targetTodo = data[i];
-						// 	}
-						// }
+						for (let i = 0; i < data.length; i++) {
+							if (
+								data[i].userId === this.userId &&
+								parseInt(data[i].todoId) === parseInt(this.id)
+							) {
+								targetTodo = data[i];
+							}
+						}
 						/// ------ Another method to search -------/////////
-						const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
+						//const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
 						resolve(JSON.stringify(targetTodo));
 					});
 				}
