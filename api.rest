@@ -34,16 +34,16 @@ GET http://localhost:3000/todos/1 HTTP/1.1
 user_id: 1
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
-PATCH http://localhost:3000/todos/2 HTTP/1.1
+PATCH http://localhost:3000/todos/1 HTTP/1.1
 content-type: application/json
-user_id: 12
+user_id: 1
 
 {
 	"isCompleted" : true
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/2 HTTP/1.1
+DELETE http://localhost:3000/todos/3 HTTP/1.1
 user_id: 1
 
 ### PUT REQUEST TO UPDATE TODO
@@ -52,7 +52,7 @@ content-type: application/json
 user_id: 1
 
 {
-	"title": "Clean dishes",
+	"title": "Clean clothes",
 	"description": "Clean all the dishes before the guests came",
-	"isCompleted": false
+	"isCompleted": true
 }

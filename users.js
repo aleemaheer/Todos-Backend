@@ -2,31 +2,36 @@ const fs = require("fs");
 const path = "./data";
 
 class User {
-	constructor(body) {
-		this.body = body;
+	#usersData
+	constructor() {
+		this.init();
+		fs.readFile("./data/users.json", "utf-8", (err, data) => {
+			if (err) {
+				console.log(err);
+			}
+			this.#usersData = JSON.parse(data);
+		})
+	}
+
+	init() {
+		if (!fs.existsSync(path)) {
+			fs.mkdirSync("data");
+		}
+		if (!fs.existsSync("./data/users.json")) {
+			fs.writeFileSync("./data/users.json", JSON.stringify([]));
+		}
 	}
 
 	// Register User
-	register() {
+	register(userName, email) {
 		return new Promise((resolve, reject) => {
-			this.body = JSON.parse(this.body);
-			if (!fs.existsSync(path)) fs.mkdirSync("data");
-			if (!fs.existsSync("./data/users.json")) {
-				fs.writeFileSync("./data/users.json", JSON.stringify([]));
-			}
-			fs.readFile("./data/users.json", "utf-8", (err, data) => {
-				if (err) {
-					console.log(err);
-					reject();
-				}
-				data = JSON.parse(data);
-				let userId = data.length;
+				let userId = this.#usersData.length;
 				userId++;
 				let checkEmail = true;
-				if (data.length !== 0) {
+				if (this.#usersData.length !== 0) {
 					// Check user's email that same emails cannot be created
-					for (let i = 0; i < data.length; i++) {
-						if (data[i].email === this.body.email) {
+					for (let i = 0; i < this.#usersData.length; i++) {
+						if (this.#usersData[i].email === email) {
 							checkEmail = false;
 							break;
 						}
@@ -35,11 +40,11 @@ class User {
 				if (checkEmail) {
 					let newUser = {
 						userId: userId,
-						userName: this.body.userName,
-						email: this.body.email,
+						userName: userName,
+						email: email,
 					};
-					data.push(newUser);
-					fs.writeFile("./data/users.json", JSON.stringify(data), (err) => {
+					this.#usersData.push(newUser);
+					fs.writeFile("./data/users.json", JSON.stringify(this.#usersData), (err) => {
 						if (err) {
 							console.log(err);
 							reject();
@@ -49,33 +54,24 @@ class User {
 				} else {
 					resolve("emailNotAcceptable");
 				}
-			});
 		});
 	}
 
 	// Login
-	login() {
+	login(email) {
 		return new Promise((resolve, reject) => {
 			try {
-				this.body = JSON.parse(this.body);
 				let userObject;
-				if (!fs.existsSync(path) || !fs.existsSync("./data/users.json")) {
+				for (let i = 0; i < this.#usersData.length; i++) {
+					if (email === this.#usersData[i].email) {
+						userObject = this.#usersData[i];
+						break;
+					}
+				}
+				if (!userObject) {
 					resolve();
 				} else {
-					fs.readFile("./data/users.json", "utf-8", (err, data) => {
-						if (err) {
-							console.log(err);
-							reject();
-						}
-						data = JSON.parse(data);
-						for (let i = 0; i < data.length; i++) {
-							if (this.body.email === data[i].email) {
-								userObject = data[i];
-								break;
-							}
-						}
-						resolve(JSON.stringify(userObject));
-					});
+					resolve(JSON.stringify(userObject));
 				}
 			} catch (err) {
 				console.log(err);
