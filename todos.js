@@ -2,39 +2,74 @@ const fs = require("fs");
 const path = "./data";
 
 class Todo {
-	constructor(userId, id, body) {
-		this.userId = userId;
-		this.id = id;
-		this.body = body;
+	constructor() {
+		this.init();
+	}
+
+	init() {
+		try {
+			if (!fs.existsSync(path)) {
+				fs.mkdirSync("data");
+			}
+			if (!fs.existsSync("./data/todos.json")) {
+				fs.writeFile("./data/todos.json", JSON.stringify([]), (err) => {
+					if (err) {
+						console.log(err);
+					}
+					// File written successfully
+				})
+				fs.writeFile("./data/users.json", JSON.stringify([]), (err) => {
+					if (err) {
+						console.log(err);
+					}
+					// File written successfully
+				})
+			}
+		}
+		catch (err) {
+			console.log(err);
+		}
+	}
+
+	// Function to read todos
+	async readTodos() {
+		try {
+			const data = await fs.readFileSync("./data/todos.json", "utf-8");
+			return JSON.parse(data); 
+		}
+		catch (err) {
+			console.log(err);
+		}
+	}
+
+	// Function to read users data
+	async readUsers() {
+		try {
+			const data = fs.readFileSync("./data/users.json", "utf-8");
+			return JSON.parse(data);
+		}
+		catch (err) {
+			console.log(err);
+		}
 	}
 
 	// Get Todo
-	getTodo() {
-		return new Promise((resolve, reject) => {
+	getTodo(userId, todoId) {
+		return new Promise(async (resolve, reject) => {
 			try {
-				if (!fs.existsSync(path) || !fs.existsSync("./data/todos.json")) {
-					resolve();
-				} else {
 					let targetTodo;
-					fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-						if (err) {
-							console.log(err);
-							reject();
-						}
-						data = JSON.parse(data);
-						for (let i = 0; i < data.length; i++) {
+						const todosData = await this.readTodos();
+						for (let i = 0; i < todosData.length; i++) {
 							if (
-								data[i].userId === this.userId &&
-								parseInt(data[i].todoId) === parseInt(this.id)
+								todosData[i].userId === userId &&
+								parseInt(todosData[i].todoId) === parseInt(todoId)
 							) {
-								targetTodo = data[i];
+								targetTodo = todosData[i];
 							}
 						}
 						/// ------ Another method to search -------/////////
 						//const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
 						resolve(JSON.stringify(targetTodo));
-					});
-				}
 			} catch (err) {
 				console.log(err);
 				reject();
@@ -43,23 +78,15 @@ class Todo {
 	}
 
 	// Delete todo
-	deleteTodo() {
-		return new Promise((resolve, reject) => {
-			if (!fs.existsSync(path) || !fs.existsSync("./data/todos.json")) {
-				resolve();
-			} else {
+	deleteTodo(userId, todoId) {
+		return new Promise(async (resolve, reject) => {
 				let targetTodo = -1;
 				let filteredTodos = [];
-				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					data = JSON.parse(data);
-					for (let i = 0; i < data.length; i++) {
+					const todosData = await this.readTodos();
+					for (let i = 0; i < todosData.length; i++) {
 						if (
-							data[i].userId === parseInt(this.userId) &&
-							data[i].todoId === parseInt(this.id)
+							todosData[i].userId === parseInt(userId) &&
+							todosData[i].todoId === parseInt(todoId)
 						) {
 							targetTodo = i;
 							break;
@@ -68,8 +95,8 @@ class Todo {
 					if (targetTodo === -1) {
 						resolve();
 					} else {
-						data.splice(targetTodo, 1);
-						fs.writeFile("./data/todos.json", JSON.stringify(data), (err) => {
+						todosData.splice(targetTodo, 1);
+						fs.writeFile("./data/todos.json", JSON.stringify(todosData), (err) => {
 							if (err) {
 								console.log(err);
 								reject();
@@ -90,85 +117,65 @@ class Todo {
 							});
 						});
 					}
-				});
-			}
 		});
 	}
 
 	// Update status of todo, i.e., completed or not
-	updateTodoStatus() {
-		return new Promise((resolve, reject) => {
-			if (!fs.existsSync("./data/todos.json")) {
-				resolve();
-			} else {
-				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					data = JSON.parse(data);
+	updateTodoStatus(todoId, userId, status) {
+		return new Promise(async (resolve, reject) => {
+					const todosData = await this.readTodos();
 					let targetTodo;
-					this.body = JSON.parse(this.body);
-					for (let i = 0; i < data.length; i++) {
+					for (let i = 0; i < todosData.length; i++) {
 						if (
-							data[i].todoId === parseInt(this.id) &&
-							data[i].userId === parseInt(this.userId)
+							todosData[i].todoId === parseInt(todoId) &&
+							todosData[i].userId === parseInt(userId)
 						) {
 							targetTodo = i;
 							break;
 						}
 					}
 					if (targetTodo || targetTodo === 0) {
-						data[targetTodo].isCompleted = this.body.isCompleted;
-						fs.writeFile("./data/todos.json", JSON.stringify(data), (err) => {
+						todosData[targetTodo].isCompleted = status;
+						fs.writeFile("./data/todos.json", JSON.stringify(todosData), (err) => {
 							if (err) {
 								console.log(err);
 								reject();
 							}
 							// File written successfully
 						});
-						resolve(data[targetTodo]);
+						resolve(todosData[targetTodo]);
 					} else {
 						resolve();
 					}
-				});
-			}
 		});
 	}
 
 	// Update todo
-	updateTodo() {
-		return new Promise((resolve, reject) => {
-			if (!fs.existsSync("./data/todos.json")) {
-				resolve();
-			} else {
-				this.body = JSON.parse(this.body);
+	updateTodo(todoId, userId, title, description) {
+		return new Promise(async (resolve, reject) => {
 				let targetTodo;
-				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					data = JSON.parse(data);
-					for (let i = 0; i < data.length; i++) {
+					const todosData = await this.readTodos();
+					console.log(todoId, userId)
+					for (let i = 0; i < todosData.length; i++) {
 						if (
-							data[i].userId === parseInt(this.userId) &&
-							data[i].todoId === parseInt(this.id)
+							todosData[i].userId === parseInt(userId) &&
+							todosData[i].todoId === parseInt(todoId)
 						) {
 							targetTodo = i;
 							break;
 						}
 					}
+					console.log(targetTodo);
 					// Update todo
 					if (!targetTodo && targetTodo !== 0) {
 						resolve();
 					} else {
-						data[targetTodo].title = this.body.title;
-						data[targetTodo].description = this.body.description;
+						todosData[targetTodo].title = title;
+						todosData[targetTodo].description = description;
 						fs.writeFile(
 							"./data/todos.json",
-							JSON.stringify(data),
-							(err, data) => {
+							JSON.stringify(todosData),
+							(err) => {
 								if (err) {
 									console.log(err);
 									reject();
@@ -176,97 +183,79 @@ class Todo {
 								// File written
 							}
 						);
-						resolve(JSON.stringify(data[targetTodo]));
+						resolve(JSON.stringify(todosData[targetTodo]));
 					}
-				});
-			}
 		});
 	}
 
+
 	// Create a new todo testing
-	createTodo() {
-		return new Promise((resolve, reject) => {
-			if (!fs.existsSync("./data/users.json")) {
-				resolve();
-			} else {
-				if (!fs.existsSync("./data/todos.json"))
-					fs.writeFileSync("./data/todos.json", JSON.stringify([]));
-				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					data = JSON.parse(data);
-					this.body = JSON.parse(this.body);
-					const users = JSON.parse(
-						fs.readFileSync("./data/users.json", "utf-8")
-					);
-					let existUser = false;
-					for (let i = 0; i < users.length; i++) {
-						if (users[i].userId === this.userId) {
+	createTodo(userId, todoTitle, todoDescription) {
+		return new Promise(async (resolve, reject) => {
+			const todosData = await this.readTodos();
+			const usersData = await this.readUsers();
+				let existUser = false;
+					for (let i = 0; i < usersData.length; i++) {
+						if (usersData[i].userId === userId) {
 							existUser = true;
 							break;
 						}
 					}
 					if (existUser) {
-						let id = data.length;
+						let id = todosData.length;
 						id++;
 						let todo = {
 							todoId: id,
-							userId: this.userId,
-							title: this.body.title,
-							description: this.body.description,
+							userId: userId,
+							title: todoTitle,
+							description: todoDescription,
 							isCompleted: false,
 						};
-						data.push(todo);
-						fs.writeFile("./data/todos.json", JSON.stringify(data), (err) => {
+						todosData.push(todo);
+						fs.writeFile("./data/todos.json", JSON.stringify(todosData), (err) => {
 							if (err) {
 								console.log(err);
 								reject();
 							}
 						});
-						fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-							if (err) {
-								console.log(err);
-								reject();
-							}
-							data = JSON.parse(data);
-							resolve(todo);
-						});
+						resolve(todo);
 					} else {
 						resolve();
 					}
-				});
-			}
 		});
 	}
 
 	// Get Todos with user id
-	getTodos() {
-		return new Promise((resolve, reject) => {
-			if (!fs.existsSync(path) || !fs.existsSync("./data/todos.json")) {
-				resolve();
-			} else {
-				fs.readFile("./data/todos.json", "utf-8", (err, data) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					data = JSON.parse(data);
+	getTodos(userId) {
+		return new Promise(async (resolve) => {
+					const todosData = await this.readTodos();
+					const usersData = await this.readUsers();
+					console.log(todosData);
 					let filteredTodos = [];
 					let i = 1;
-					for (i = 0; i < data.length; i++) {
-						if (data[i].userId === parseInt(this.userId)) {
-							filteredTodos.push(data[i]);
+					for (i = 0; i < todosData.length; i++) {
+						if (todosData[i].userId === parseInt(userId)) {
+							filteredTodos.push(todosData[i]);
 						}
 					}
+					let existUser = false;
+					console.log(usersData);
+					for (let i = 0; i < usersData.length; i++) {
+						if (usersData[i].userId === parseInt(userId)) {
+							existUser = true;
+							break;
+						}
+					}
+					console.log(existUser);
+					if (!existUser) {
+						resolve(JSON.stringify("This user does not exist"));
+					} else {
 					if (!filteredTodos[0]) {
 						resolve(JSON.stringify([]));
 					} else {
 						resolve(JSON.stringify(filteredTodos));
 					}
-				});
-			}
+				}
 		});
 	}
 }
