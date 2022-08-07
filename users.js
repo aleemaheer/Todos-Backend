@@ -1,11 +1,11 @@
 const fs = require("fs");
-const path = "./data";
+const path = "/home/aleemaheer/todos_backend/data";
 
 class User {
 	#usersData
 	constructor() {
 		this.init();
-		fs.readFile("./data/users.json", "utf-8", (err, data) => {
+		fs.readFile("/home/aleemaheer/todos_backend/data/users.json", "utf-8", (err, data) => {
 			if (err) {
 				console.log(err);
 			}
@@ -17,8 +17,8 @@ class User {
 		if (!fs.existsSync(path)) {
 			fs.mkdirSync("data");
 		}
-		if (!fs.existsSync("./data/users.json")) {
-			fs.writeFileSync("./data/users.json", JSON.stringify([]));
+		if (!fs.existsSync("/home/aleemaheer/todos_backend/data/users.json")) {
+			fs.writeFileSync("/home/aleemaheer/todos_backend/data/users.json", JSON.stringify([]));
 		}
 	}
 
@@ -44,7 +44,7 @@ class User {
 						email: email,
 					};
 					this.#usersData.push(newUser);
-					fs.writeFile("./data/users.json", JSON.stringify(this.#usersData), (err) => {
+					fs.writeFile("/home/aleemaheer/todos_backend/data/users.json", JSON.stringify(this.#usersData), (err) => {
 						if (err) {
 							console.log(err);
 							reject();
