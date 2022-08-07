@@ -1,0 +1,14 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "Command line application to use todos backend",
+  "main": "bin/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Muhammad Abdul Aleem",
+  "license": "MIT",
+  "bin": {
+    "todos": "./bin/index.js"
+  }
+}
