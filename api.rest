@@ -3,8 +3,8 @@ POST http://localhost:3000/register HTTP/1.1
 content-type: application/json
 
 {
-	"userName": "aleem",
-	"email": "aleem@todos.com"
+	"userName": "ali",
+	"email": "ali@todos.com"
 }
 
 ### Login
@@ -21,8 +21,8 @@ content-type: application/json
 user_id: 1
 
 {
-	"title": "Wash clothes 2",
-	"description": "This is ali's todos"
+	"title": "Wash clothes",
+	"description": "This is todos"
 }
 
 ### GET All TODOS
@@ -30,7 +30,7 @@ GET http://localhost:3000/todos HTTP/1.1
 user_id: 1
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/1 HTTP/1.1
+GET http://localhost:3000/todos/2 HTTP/1.1
 user_id: 1
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
@@ -43,7 +43,7 @@ user_id: 1
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/3 HTTP/1.1
+DELETE http://localhost:3000/todos/2 HTTP/1.1
 user_id: 1
 
 ### PUT REQUEST TO UPDATE TODO

@@ -155,7 +155,6 @@ class Todo {
 		return new Promise(async (resolve, reject) => {
 				let targetTodo;
 					const todosData = await this.readTodos();
-					console.log(todoId, userId)
 					for (let i = 0; i < todosData.length; i++) {
 						if (
 							todosData[i].userId === parseInt(userId) &&
@@ -165,7 +164,6 @@ class Todo {
 							break;
 						}
 					}
-					console.log(targetTodo);
 					// Update todo
 					if (!targetTodo && targetTodo !== 0) {
 						resolve();
@@ -230,7 +228,6 @@ class Todo {
 		return new Promise(async (resolve) => {
 					const todosData = await this.readTodos();
 					const usersData = await this.readUsers();
-					console.log(todosData);
 					let filteredTodos = [];
 					let i = 1;
 					for (i = 0; i < todosData.length; i++) {
@@ -239,14 +236,12 @@ class Todo {
 						}
 					}
 					let existUser = false;
-					console.log(usersData);
 					for (let i = 0; i < usersData.length; i++) {
 						if (usersData[i].userId === parseInt(userId)) {
 							existUser = true;
 							break;
 						}
 					}
-					console.log(existUser);
 					if (!existUser) {
 						resolve(JSON.stringify("This user does not exist"));
 					} else {
