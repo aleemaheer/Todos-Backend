@@ -1,5 +1,6 @@
 const fs = require("fs");
-const path = "./data";
+const path = require("path").join(process.cwd(), "data");
+console.log(process.cwd());
 
 class Todo {
 	constructor() {
@@ -11,14 +12,14 @@ class Todo {
 			if (!fs.existsSync(path)) {
 				fs.mkdirSync("data");
 			}
-			if (!fs.existsSync("./data/todos.json")) {
-				fs.writeFile("./data/todos.json", JSON.stringify([]), (err) => {
+			if (!fs.existsSync(path + "/todos.json")) {
+				fs.writeFile(path + "/todos.json", JSON.stringify([]), (err) => {
 					if (err) {
 						console.log(err);
 					}
 					// File written successfully
 				})
-				fs.writeFile("./data/users.json", JSON.stringify([]), (err) => {
+				fs.writeFile(path + "/users.json", JSON.stringify([]), (err) => {
 					if (err) {
 						console.log(err);
 					}
@@ -34,7 +35,7 @@ class Todo {
 	// Function to read todos
 	async readTodos() {
 		try {
-			const data = await fs.readFileSync("./data/todos.json", "utf-8");
+			const data = await fs.readFileSync(path + "/todos.json", "utf-8");
 			return JSON.parse(data); 
 		}
 		catch (err) {
@@ -45,7 +46,7 @@ class Todo {
 	// Function to read users data
 	async readUsers() {
 		try {
-			const data = fs.readFileSync("./data/users.json", "utf-8");
+			const data = fs.readFileSync(path + "/users.json", "utf-8");
 			return JSON.parse(data);
 		}
 		catch (err) {
@@ -96,13 +97,13 @@ class Todo {
 						resolve();
 					} else {
 						todosData.splice(targetTodo, 1);
-						fs.writeFile("./data/todos.json", JSON.stringify(todosData), (err) => {
+						fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
 							if (err) {
 								console.log(err);
 								reject();
 							}
 							// file writed
-							fs.readFile("./data/todos.json", "utf-8", (err, data) => {
+							fs.readFile(path + "/todos.json", "utf-8", (err, data) => {
 								if (err) {
 									console.log(err);
 									reject();
@@ -136,7 +137,7 @@ class Todo {
 					}
 					if (targetTodo || targetTodo === 0) {
 						todosData[targetTodo].isCompleted = status;
-						fs.writeFile("./data/todos.json", JSON.stringify(todosData), (err) => {
+						fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
 							if (err) {
 								console.log(err);
 								reject();
@@ -171,7 +172,7 @@ class Todo {
 						todosData[targetTodo].title = title;
 						todosData[targetTodo].description = description;
 						fs.writeFile(
-							"./data/todos.json",
+							path + "/todos.json",
 							JSON.stringify(todosData),
 							(err) => {
 								if (err) {
@@ -210,7 +211,7 @@ class Todo {
 							isCompleted: false,
 						};
 						todosData.push(todo);
-						fs.writeFile("./data/todos.json", JSON.stringify(todosData), (err) => {
+						fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
 							if (err) {
 								console.log(err);
 								reject();
