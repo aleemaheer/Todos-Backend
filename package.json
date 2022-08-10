@@ -12,6 +12,7 @@
   "devDependencies": {
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
+    "md5": "^2.3.0",
     "nodemon": "^2.0.19",
     "prettier": "^2.7.1"
   }
