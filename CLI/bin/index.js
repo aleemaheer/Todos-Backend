@@ -24,9 +24,9 @@ function authorizeUser() {
 			readline.question("Enter your email: ", (email) => {
 				readline.question("Enter your password: ", async (password) => {
 					await login(email, password);
+					isLoggedIn ? options() : authorizeUser();
 				});
-				isLoggedIn ? options() : authorizeUser();
-				//readline.close();
+				// readline.close();
 			});
 		} else if (loginOrRegister === "2") {
 			readline.question("Enter username: ", (userName) => {
@@ -40,12 +40,12 @@ function authorizeUser() {
 									authorizeUser();
 								} else {
 									await register(userName, email, password);
+									isLoggedIn ? options() : authorizeUser();
 								}
 							}
 						);
 					});
-					isLoggedIn ? options() : authorizeUser();
-					//readline.close();
+					// readline.close();
 				});
 			});
 		} else if (loginOrRegister === "0") {
@@ -74,7 +74,7 @@ async function login(email, password) {
 		isLoggedIn = true;
 		response = JSON.parse(response);
 		loggedInUserId = response.userId;
-		//readline.close();
+		// readline.close();
 	}
 }
 
@@ -89,7 +89,7 @@ async function register(userName, email, password) {
 		isLoggedIn = true;
 		response = JSON.parse(response);
 		loggedInUserId = response.userId;
-		//readline.close();
+		// readline.close();
 	}
 }
 
@@ -170,7 +170,7 @@ function handleDeleteTodo() {
 
 // Function to create Todo
 async function createTodo(loggedInUserId, todoTitle, todoDescription) {
-	let response = await todo.createTodo(
+	const response = await todo.createTodo(
 		loggedInUserId,
 		todoTitle,
 		todoDescription
@@ -180,7 +180,7 @@ async function createTodo(loggedInUserId, todoTitle, todoDescription) {
 		console.log("Sorry something bad happens!");
 		options();
 	} else {
-		//response = JSON.stringify(response);
+		// response = JSON.stringify(response);
 		console.log("Todo Created");
 		console.table(response);
 		options();
@@ -235,7 +235,7 @@ async function updateTodo(todoId, todoTitle, todoDescription) {
 // Function to update status of todo
 async function updateTodoStatus(todoId, todoStatus) {
 	todoStatus = JSON.parse(todoStatus);
-	let response = await todo.updateTodoStatus(
+	const response = await todo.updateTodoStatus(
 		todoId,
 		loggedInUserId,
 		todoStatus

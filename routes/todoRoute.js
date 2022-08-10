@@ -2,15 +2,15 @@ const Todo = require("../todos");
 const todo = new Todo.Todo();
 
 function handleTodosRoutes(req, res) {
-    if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
-        const todoId = req.url.split("/")[2];
-        handleGetTodo(req, res, todoId);
-    } else if (req.url === "/todos" && req.method === "GET") {
-        handleGetTodos(req, res);
-    } else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
-        const todoId = req.url.split("/")[2];
-        handleDeleteTodo(req, res, todoId);
-    } else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
+	if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
+		const todoId = req.url.split("/")[2];
+		handleGetTodo(req, res, todoId);
+	} else if (req.url === "/todos" && req.method === "GET") {
+		handleGetTodos(req, res);
+	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
+		const todoId = req.url.split("/")[2];
+		handleDeleteTodo(req, res, todoId);
+	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
 		const todoId = req.url.split("/")[2];
 		handleUpdateTodo(req, res, todoId);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PATCH") {
@@ -91,7 +91,12 @@ function handleUpdateTodo(req, res, todoId) {
 		req.on("end", async () => {
 			body = JSON.parse(body);
 			const userId = req.headers.user_id;
-			const response = await todo.updateTodo(todoId, userId, body.title, body.description);
+			const response = await todo.updateTodo(
+				todoId,
+				userId,
+				body.title,
+				body.description
+			);
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
 				res.end(JSON.stringify("Todo not found"));
@@ -117,7 +122,11 @@ function handleUpdateTodoStatus(req, res, todoId) {
 		req.on("end", async () => {
 			body = JSON.parse(body);
 			const userId = req.headers.user_id;
-			const response = await todo.updateTodoStatus(todoId, userId, body.isCompleted);
+			const response = await todo.updateTodoStatus(
+				todoId,
+				userId,
+				body.isCompleted
+			);
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
 				res.end(JSON.stringify("Todo not found"));
@@ -143,9 +152,13 @@ function handleCreateTodo(req, res) {
 		req.on("end", async () => {
 			body = JSON.parse(body);
 			const todoTitle = body.title;
-			const todoDescription = body.description
+			const todoDescription = body.description;
 			const userId = parseInt(req.headers.user_id);
-			const response = await todo.createTodo(userId, todoTitle, todoDescription);
+			const response = await todo.createTodo(
+				userId,
+				todoTitle,
+				todoDescription
+			);
 			if (!response) {
 				res.writeHead(404, { "Content-Type": "application/json" });
 				res.end(
@@ -167,4 +180,4 @@ function handleCreateTodo(req, res) {
 
 module.exports = {
 	handleTodosRoutes,
-}
+};

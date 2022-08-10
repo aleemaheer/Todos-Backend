@@ -43,10 +43,10 @@ class User {
 				}
 			}
 			if (checkEmail) {
-				let newUser = {
-					userId: userId,
-					userName: userName,
-					email: email,
+				const newUser = {
+					userId,
+					userName,
+					email,
 					password,
 				};
 				data.push(newUser);

@@ -18,16 +18,15 @@ class Todo {
 						console.log(err);
 					}
 					// File written successfully
-				})
+				});
 				fs.writeFile(path + "/users.json", JSON.stringify([]), (err) => {
 					if (err) {
 						console.log(err);
 					}
 					// File written successfully
-				})
+				});
 			}
-		}
-		catch (err) {
+		} catch (err) {
 			console.log(err);
 		}
 	}
@@ -36,9 +35,8 @@ class Todo {
 	async readTodos() {
 		try {
 			const data = await fs.readFileSync(path + "/todos.json", "utf-8");
-			return JSON.parse(data); 
-		}
-		catch (err) {
+			return JSON.parse(data);
+		} catch (err) {
 			console.log(err);
 		}
 	}
@@ -48,8 +46,7 @@ class Todo {
 		try {
 			const data = fs.readFileSync(path + "/users.json", "utf-8");
 			return JSON.parse(data);
-		}
-		catch (err) {
+		} catch (err) {
 			console.log(err);
 		}
 	}
@@ -58,19 +55,19 @@ class Todo {
 	getTodo(userId, todoId) {
 		return new Promise(async (resolve, reject) => {
 			try {
-					let targetTodo;
-						const todosData = await this.readTodos();
-						for (let i = 0; i < todosData.length; i++) {
-							if (
-								todosData[i].userId === userId &&
-								parseInt(todosData[i].todoId) === parseInt(todoId)
-							) {
-								targetTodo = todosData[i];
-							}
-						}
-						/// ------ Another method to search -------/////////
-						//const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
-						resolve(JSON.stringify(targetTodo));
+				let targetTodo;
+				const todosData = await this.readTodos();
+				for (let i = 0; i < todosData.length; i++) {
+					if (
+						todosData[i].userId === userId &&
+						parseInt(todosData[i].todoId) === parseInt(todoId)
+					) {
+						targetTodo = todosData[i];
+					}
+				}
+				/// ------ Another method to search -------/////////
+				// const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
+				resolve(JSON.stringify(targetTodo));
 			} catch (err) {
 				console.log(err);
 				reject();
@@ -81,177 +78,172 @@ class Todo {
 	// Delete todo
 	deleteTodo(userId, todoId) {
 		return new Promise(async (resolve, reject) => {
-				let targetTodo = -1;
-				let filteredTodos = [];
-					const todosData = await this.readTodos();
-					for (let i = 0; i < todosData.length; i++) {
-						if (
-							todosData[i].userId === parseInt(userId) &&
-							todosData[i].todoId === parseInt(todoId)
-						) {
-							targetTodo = i;
-							break;
+			let targetTodo = -1;
+			const filteredTodos = [];
+			const todosData = await this.readTodos();
+			for (let i = 0; i < todosData.length; i++) {
+				if (
+					todosData[i].userId === parseInt(userId) &&
+					todosData[i].todoId === parseInt(todoId)
+				) {
+					targetTodo = i;
+					break;
+				}
+			}
+			if (targetTodo === -1) {
+				resolve();
+			} else {
+				todosData.splice(targetTodo, 1);
+				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
+					if (err) {
+						console.log(err);
+						reject();
+					}
+					// file writed
+					fs.readFile(path + "/todos.json", "utf-8", (err, data) => {
+						if (err) {
+							console.log(err);
+							reject();
 						}
-					}
-					if (targetTodo === -1) {
-						resolve();
-					} else {
-						todosData.splice(targetTodo, 1);
-						fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
-							if (err) {
-								console.log(err);
-								reject();
+						data = JSON.parse(data);
+						for (let i = 0; i < data.length; i++) {
+							if (data[i].userId === parseInt(this.userId)) {
+								filteredTodos.push(data[i]);
 							}
-							// file writed
-							fs.readFile(path + "/todos.json", "utf-8", (err, data) => {
-								if (err) {
-									console.log(err);
-									reject();
-								}
-								data = JSON.parse(data);
-								for (let i = 0; i < data.length; i++) {
-									if (data[i].userId === parseInt(this.userId)) {
-										filteredTodos.push(data[i]);
-									}
-								}
-								resolve(JSON.stringify(filteredTodos));
-							});
-						});
-					}
+						}
+						resolve(JSON.stringify(filteredTodos));
+					});
+				});
+			}
 		});
 	}
 
 	// Update status of todo, i.e., completed or not
 	updateTodoStatus(todoId, userId, status) {
 		return new Promise(async (resolve, reject) => {
-					const todosData = await this.readTodos();
-					let targetTodo;
-					for (let i = 0; i < todosData.length; i++) {
-						if (
-							todosData[i].todoId === parseInt(todoId) &&
-							todosData[i].userId === parseInt(userId)
-						) {
-							targetTodo = i;
-							break;
-						}
+			const todosData = await this.readTodos();
+			let targetTodo;
+			for (let i = 0; i < todosData.length; i++) {
+				if (
+					todosData[i].todoId === parseInt(todoId) &&
+					todosData[i].userId === parseInt(userId)
+				) {
+					targetTodo = i;
+					break;
+				}
+			}
+			if (targetTodo || targetTodo === 0) {
+				todosData[targetTodo].isCompleted = status;
+				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
+					if (err) {
+						console.log(err);
+						reject();
 					}
-					if (targetTodo || targetTodo === 0) {
-						todosData[targetTodo].isCompleted = status;
-						fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
-							if (err) {
-								console.log(err);
-								reject();
-							}
-							// File written successfully
-						});
-						resolve(todosData[targetTodo]);
-					} else {
-						resolve();
-					}
+					// File written successfully
+				});
+				resolve(todosData[targetTodo]);
+			} else {
+				resolve();
+			}
 		});
 	}
 
 	// Update todo
 	updateTodo(todoId, userId, title, description) {
 		return new Promise(async (resolve, reject) => {
-				let targetTodo;
-					const todosData = await this.readTodos();
-					for (let i = 0; i < todosData.length; i++) {
-						if (
-							todosData[i].userId === parseInt(userId) &&
-							todosData[i].todoId === parseInt(todoId)
-						) {
-							targetTodo = i;
-							break;
-						}
+			let targetTodo;
+			const todosData = await this.readTodos();
+			for (let i = 0; i < todosData.length; i++) {
+				if (
+					todosData[i].userId === parseInt(userId) &&
+					todosData[i].todoId === parseInt(todoId)
+				) {
+					targetTodo = i;
+					break;
+				}
+			}
+			// Update todo
+			if (!targetTodo && targetTodo !== 0) {
+				resolve();
+			} else {
+				todosData[targetTodo].title = title;
+				todosData[targetTodo].description = description;
+				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
+					if (err) {
+						console.log(err);
+						reject();
 					}
-					// Update todo
-					if (!targetTodo && targetTodo !== 0) {
-						resolve();
-					} else {
-						todosData[targetTodo].title = title;
-						todosData[targetTodo].description = description;
-						fs.writeFile(
-							path + "/todos.json",
-							JSON.stringify(todosData),
-							(err) => {
-								if (err) {
-									console.log(err);
-									reject();
-								}
-								// File written
-							}
-						);
-						resolve(JSON.stringify(todosData[targetTodo]));
-					}
+					// File written
+				});
+				resolve(JSON.stringify(todosData[targetTodo]));
+			}
 		});
 	}
-
 
 	// Create a new todo testing
 	createTodo(userId, todoTitle, todoDescription) {
 		return new Promise(async (resolve, reject) => {
 			const todosData = await this.readTodos();
 			const usersData = await this.readUsers();
-				let existUser = false;
-					for (let i = 0; i < usersData.length; i++) {
-						if (usersData[i].userId === userId) {
-							existUser = true;
-							break;
-						}
+			let existUser = false;
+			for (let i = 0; i < usersData.length; i++) {
+				if (usersData[i].userId === userId) {
+					existUser = true;
+					break;
+				}
+			}
+			if (existUser) {
+				let id = todosData.length;
+				id++;
+				const todo = {
+					todoId: id,
+					userId,
+					title: todoTitle,
+					description: todoDescription,
+					isCompleted: false,
+				};
+				todosData.push(todo);
+				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
+					if (err) {
+						console.log(err);
+						reject();
 					}
-					if (existUser) {
-						let id = todosData.length;
-						id++;
-						let todo = {
-							todoId: id,
-							userId: userId,
-							title: todoTitle,
-							description: todoDescription,
-							isCompleted: false,
-						};
-						todosData.push(todo);
-						fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err) => {
-							if (err) {
-								console.log(err);
-								reject();
-							}
-						});
-						resolve(todo);
-					} else {
-						resolve();
-					}
+				});
+				resolve(todo);
+			} else {
+				resolve();
+			}
 		});
 	}
 
 	// Get Todos with user id
 	getTodos(userId) {
 		return new Promise(async (resolve) => {
-					const todosData = await this.readTodos();
-					const usersData = await this.readUsers();
-					let filteredTodos = [];
-					let i = 1;
-					for (i = 0; i < todosData.length; i++) {
-						if (todosData[i].userId === parseInt(userId)) {
-							filteredTodos.push(todosData[i]);
-						}
-					}
-					let existUser = false;
-					for (let i = 0; i < usersData.length; i++) {
-						if (usersData[i].userId === parseInt(userId)) {
-							existUser = true;
-							break;
-						}
-					}
-					if (!existUser) {
-						resolve(JSON.stringify("This user does not exist"));
-					} else {
-					if (!filteredTodos[0]) {
-						resolve(JSON.stringify([]));
-					} else {
-						resolve(JSON.stringify(filteredTodos));
-					}
+			const todosData = await this.readTodos();
+			const usersData = await this.readUsers();
+			const filteredTodos = [];
+			let i = 1;
+			for (i = 0; i < todosData.length; i++) {
+				if (todosData[i].userId === parseInt(userId)) {
+					filteredTodos.push(todosData[i]);
 				}
+			}
+			let existUser = false;
+			for (let i = 0; i < usersData.length; i++) {
+				if (usersData[i].userId === parseInt(userId)) {
+					existUser = true;
+					break;
+				}
+			}
+			if (!existUser) {
+				resolve(JSON.stringify("This user does not exist"));
+			} else {
+				if (!filteredTodos[0]) {
+					resolve(JSON.stringify([]));
+				} else {
+					resolve(JSON.stringify(filteredTodos));
+				}
+			}
 		});
 	}
 }
