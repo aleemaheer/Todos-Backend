@@ -5,8 +5,7 @@ content-type: application/json
 {
 	"userName": "aleem",
 	"email": "aleem@todos.com",
-	"password": "12345678",
-	"confirmPassword": "12345678"
+	"password": "12345678"
 }
 
 ### Login
@@ -15,7 +14,7 @@ content-type: application/json
 
 {
 	"email": "aleem@todos.com",
-	"password": "12345678"
+	"password": "1234567"
 }
 
 ### POST REQUEST TO CREATE TODO

@@ -1,8 +1,6 @@
 const fs = require("fs");
 const md5 = require("md5");
-//const path = "/home/aleemaheer/todos_backend/data";
 const path = require("path").join(process.cwd(), "data");
-console.log(path);
 
 class User {
 	constructor() {
