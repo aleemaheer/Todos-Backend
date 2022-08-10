@@ -10,6 +10,10 @@
 ```bash
     cd "Todos-Backend"
 ```
+* Install the dependency, this project have only one external package which is md5, to hash the password so install dependency:
+```bash
+    npm install
+```
 * Here you can run the server by typing command:
 ```bash
     node index.js
