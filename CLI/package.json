@@ -10,5 +10,8 @@
   "license": "MIT",
   "bin": {
     "todos": "./bin/index.js"
+  },
+  "dependencies": {
+    "md5": "^2.3.0"
   }
 }
