@@ -23,7 +23,7 @@ function handleRegisterRoute(req, res) {
 			body = JSON.parse(body);
 			const userName = body.userName;
 			const email = body.email;
-			if (body.password === body.confirmPassword && body.password.length >= 8) {
+			if (body.password.length >= 8) {
 				const password = body.password;
 				const response = await user.register(userName, email, password);
 				if (!response) {
@@ -42,9 +42,7 @@ function handleRegisterRoute(req, res) {
 				}
 			} else {
 				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(
-					JSON.stringify("Password must be 8 characters long and be matched")
-				);
+				res.end(JSON.stringify("Password must be 8 characters long"));
 			}
 		});
 	} catch (err) {
