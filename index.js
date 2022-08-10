@@ -1,6 +1,4 @@
 const http = require("http");
-const todosStore = require("./todos");
-const userStore = require("./users");
 const handleTodosRoutes = require("./routes/todoRoute");
 const handleUserRoutes = require("./routes/userRoute");
 
@@ -21,8 +19,7 @@ const server = http.createServer((req, res) => {
 
 	if (req.url === "/register" || req.url === "/login") {
 		handleUserRoutes.handleUserRoutes(req, res);
-	}
-	else if (req.url === "/todos" || req.url.match(/\/todos\/([0-9]+)/)) {
+	} else if (req.url === "/todos" || req.url.match(/\/todos\/([0-9]+)/)) {
 		// Handle todos routes
 		handleTodosRoutes.handleTodosRoutes(req, res);
 	} else {
@@ -30,7 +27,6 @@ const server = http.createServer((req, res) => {
 		res.end(JSON.stringify("Route not found"));
 	}
 });
-
 
 function handleCors(req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
@@ -42,7 +38,6 @@ function handleCors(req, res) {
 	res.setHeader("Access-Control-Allow-Credentials", true);
 	res.statusCode = 200;
 }
-
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server is listening on ${PORT}`));
