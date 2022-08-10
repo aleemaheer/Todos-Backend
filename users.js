@@ -1,6 +1,7 @@
 const fs = require("fs");
 const md5 = require("md5");
-const path = require("path").join(process.cwd(), "data");
+//const path = require("path").join(process.cwd(), "data");
+const path = __dirname + "/data";
 
 class User {
 	constructor() {
