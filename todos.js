@@ -1,6 +1,6 @@
 const fs = require("fs");
-const path = require("path").join(process.cwd(), "data");
-console.log(process.cwd());
+//const path = require("path").join(process.cwd(), "data");
+const path = __dirname + "/data";
 
 class Todo {
 	constructor() {
