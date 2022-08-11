@@ -92,7 +92,7 @@ class User {
 	}
 
 	// Function to change password
-	changePassword(userId, oldPassword, newPassword) {
+	changePassword(userId, oldPassword, newPassword, confirmPassword) {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let targetUserIndex = -1;
@@ -107,7 +107,10 @@ class User {
 					}
 				}
 				// Call validate password function
-				const passwordValidation = await this.validatePassword(newPassword);
+				const passwordValidation = await this.validatePassword(
+					newPassword,
+					confirmPassword
+				);
 				if (!passwordValidation && targetUserIndex !== -1) {
 					const updatedPassword = md5(newPassword);
 					data[targetUserIndex].password = updatedPassword;
@@ -119,7 +122,7 @@ class User {
 					});
 					resolve();
 				} else {
-					resolve(passwordValidation);
+					resolve("Check password and try again");
 				}
 			} catch (err) {
 				console.log(err);
@@ -129,10 +132,10 @@ class User {
 	}
 
 	// Function to validate password
-	validatePassword(password) {
+	validatePassword(password, confirmPassword) {
 		return new Promise(async (resolve, reject) => {
 			var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
-			if (password.length <= 90) {
+			if (password.length <= 90 && password === confirmPassword) {
 				if (format.test(password) && password.length >= 8) {
 					resolve();
 				} else {
@@ -143,7 +146,7 @@ class User {
 				}
 			} else {
 				resolve(
-					"Please must be 8 characters long and must contain special character"
+					"Please confirm password, it must be 8 characters long and must contain special character"
 				);
 			}
 		});

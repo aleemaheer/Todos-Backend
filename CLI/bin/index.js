@@ -103,7 +103,7 @@ async function register(userName, email, password) {
 // This is for different options whether to create todos, update, vice versa
 function options() {
 	console.log(
-		"What you want to do:\n1- Create Todo\n2- Get Todos\n3- Get Todo\n4- Update Todo\n5- Update status of todo\n6- Delete Todo\n7- (0 to quit)"
+		"What you want to do:\n1- Create Todo\n2- Get Todos\n3- Get Todo\n4- Update Todo\n5- Update status of todo\n6- Delete Todo\n7- Change password\n8- (0 to quit)"
 	);
 	readline.question("Press appropriate keys: ", (option) => {
 		if (option === "1") {
@@ -118,6 +118,8 @@ function options() {
 			handleUpdateStatusOfTodo();
 		} else if (option === "6") {
 			handleDeleteTodo();
+		} else if (option === "7") {
+			handleChangePassword();
 		} else if (option === "0") {
 			readline.close();
 		} else {
@@ -172,6 +174,17 @@ function handleUpdateStatusOfTodo() {
 function handleDeleteTodo() {
 	readline.question("Enter todo id: ", (todoId) => {
 		deleteTodo(todoId, loggedInUserId);
+	});
+}
+
+// Function to handle change password
+function handleChangePassword() {
+	readline.question("Enter your old password: ", (oldPassword) => {
+		readline.question("Enter your new password: ", (newPassword) => {
+			readline.question("Confirm your new password: ", (confirmPassword) => {
+				changePassword(oldPassword, newPassword, confirmPassword);
+			});
+		});
 	});
 }
 
@@ -266,6 +279,24 @@ async function deleteTodo(todoId) {
 	} else {
 		response = JSON.parse(response);
 		console.log("Successfully todo Deleted");
+		options();
+	}
+}
+
+async function changePassword(oldPassword, newPassword, confirmPassword) {
+	//oldPassword = JSON.parse(oldPassword);
+	//newPassword = JSON.parse(newPassword);
+	let response = await user.changePassword(
+		loggedInUserId,
+		oldPassword,
+		newPassword,
+		confirmPassword
+	);
+	if (!response) {
+		console.log("Password Updated");
+		options();
+	} else {
+		console.log(response);
 		options();
 	}
 }

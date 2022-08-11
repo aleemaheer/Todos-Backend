@@ -101,7 +101,8 @@ function handleChangePassword(req, res, userId) {
 			const response = await user.changePassword(
 				userId,
 				body.oldPassword,
-				body.newPassword
+				body.newPassword,
+				body.confirmPassword
 			);
 			if (!response) {
 				res.writeHead(200, { "Content-Type": "application/json" });

@@ -14,8 +14,9 @@ PUT http://localhost:3000/account/1
 content-type: application/json
 
 {
-	"oldPassword": "12345678!",
-	"newPassword": "heloooooo$"
+	"oldPassword": "hello####",
+	"newPassword": "meow####",
+	"confirmPassword": "meow####"
 }
 
 ### Login
@@ -24,7 +25,7 @@ content-type: application/json
 
 {
 	"email": "aleem@todos.com",
-	"password": "heloooooo$"
+	"password": "meow####"
 }
 
 ### POST REQUEST TO CREATE TODO
