@@ -4,6 +4,7 @@ const readline = require("readline").createInterface({
 	output: process.stdout,
 });
 
+const validator = require("../../routes/validateRegistration");
 const User = require("../../users");
 const user = new User.User();
 const Todo = require("../../todos");
@@ -35,12 +36,18 @@ function authorizeUser() {
 						readline.question(
 							"Confirm your password: ",
 							async (confirmPassword) => {
-								if (password !== confirmPassword) {
-									console.log("Password does not match");
-									authorizeUser();
-								} else {
+								const validatedData = await validator.validateRegisteration(
+									userName,
+									email,
+									password,
+									confirmPassword
+								);
+								if (validatedData === "Validated") {
 									await register(userName, email, password);
 									isLoggedIn ? options() : authorizeUser();
+								} else {
+									console.log(validatedData);
+									authorizeUser();
 								}
 							}
 						);
