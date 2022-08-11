@@ -1,7 +1,7 @@
 const fs = require("fs");
-const md5 = require("md5");
-//const path = require("path").join(process.cwd(), "data");
-const path = __dirname + "/data";
+const crypto = require("crypto");
+const path = require("path").join(__dirname, "/data");
+const key = "abcdefgh";
 
 class User {
 	constructor() {
@@ -19,7 +19,7 @@ class User {
 
 	init() {
 		if (!fs.existsSync(path)) {
-			fs.mkdirSync("data");
+			fs.mkdirSync(path);
 		}
 		if (!fs.existsSync(path + "/users.json")) {
 			fs.writeFileSync(path + "/users.json", JSON.stringify([]));
@@ -31,7 +31,11 @@ class User {
 		return new Promise(async (resolve, reject) => {
 			const data = await this.usersData();
 			let userId = data.length;
-			password = md5(password);
+			//password = md5(password);
+			const hashedPassword = crypto
+				.createHmac("sha256", key)
+				.update(password)
+				.digest("hex");
 			userId++;
 			let checkEmail = true;
 			if (data.length !== 0) {
@@ -48,7 +52,7 @@ class User {
 					userId,
 					userName,
 					email,
-					password,
+					password: hashedPassword,
 				};
 				data.push(newUser);
 				fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
@@ -72,8 +76,12 @@ class User {
 			try {
 				let userObject;
 				const data = await this.usersData();
+				const hashedPassword = crypto
+					.createHmac("sha256", key)
+					.update(password)
+					.digest("hex");
 				for (let i = 0; i < data.length; i++) {
-					if (email === data[i].email && md5(password) === data[i].password) {
+					if (email === data[i].email && hashedPassword === data[i].password) {
 						userObject = data[i];
 						break;
 					}
@@ -87,6 +95,75 @@ class User {
 			} catch (err) {
 				console.log(err);
 				reject();
+			}
+		});
+	}
+
+	// Function to change password
+	changePassword(userId, oldPassword, newPassword, confirmPassword) {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let targetUserIndex = -1;
+				const data = await this.usersData();
+				const hashedOldPassword = crypto
+					.createHmac("sha256", key)
+					.update(oldPassword)
+					.digest("hex");
+				for (let i = 0; i < data.length; i++) {
+					if (
+						data[i].userId === parseInt(userId) &&
+						hashedOldPassword === data[i].password
+					) {
+						targetUserIndex = i;
+						break;
+					}
+				}
+				// Call validate password function
+				const passwordValidation = await this.validatePassword(
+					newPassword,
+					confirmPassword
+				);
+				if (!passwordValidation && targetUserIndex !== -1) {
+					const hashedNewPassword = crypto
+						.createHmac("sha256", key)
+						.update(newPassword)
+						.digest("hex");
+					const updatedPassword = hashedNewPassword;
+					data[targetUserIndex].password = updatedPassword;
+					fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
+						if (err) {
+							console.log(err);
+						}
+						// File written
+					});
+					resolve();
+				} else {
+					resolve("Check password and try again");
+				}
+			} catch (err) {
+				console.log(err);
+				reject();
+			}
+		});
+	}
+
+	// Function to validate password
+	validatePassword(password, confirmPassword) {
+		return new Promise(async (resolve, reject) => {
+			var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+			if (password.length <= 90 && password === confirmPassword) {
+				if (format.test(password) && password.length >= 8) {
+					resolve();
+				} else {
+					resolve(
+						"Please use some special characters and password must be 8 characters long."
+					);
+					return;
+				}
+			} else {
+				resolve(
+					"Please confirm password, it must be 8 characters long and must contain special character"
+				);
 			}
 		});
 	}

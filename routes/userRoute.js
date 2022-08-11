@@ -1,4 +1,5 @@
 const User = require("../users");
+const validater = require("./validateRegistration");
 const user = new User.User();
 
 function handleUserRoutes(req, res) {
@@ -6,6 +7,9 @@ function handleUserRoutes(req, res) {
 		handleRegisterRoute(req, res);
 	} else if (req.url === "/login" && req.method === "POST") {
 		handleLoginRoute(req, res);
+	} else if (req.url.match(/\/account\/([0-9]+)/) && req.method === "PUT") {
+		const userId = req.url.split("/")[2];
+		handleChangePassword(req, res, userId);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });
 		res.end(JSON.stringify("Route not found"));
@@ -21,11 +25,18 @@ function handleRegisterRoute(req, res) {
 		});
 		req.on("end", async () => {
 			body = JSON.parse(body);
-			const userName = body.userName;
-			const email = body.email;
-			if (body.password.length >= 8) {
-				const password = body.password;
-				const response = await user.register(userName, email, password);
+			const validatedData = await validater.validateRegisteration(
+				body.userName,
+				body.email,
+				body.password,
+				body.confirm_password
+			);
+			if (validatedData === "Validated") {
+				const response = await user.register(
+					body.userName,
+					body.email,
+					body.password
+				);
 				if (!response) {
 					res.writeHead(502, { "Content-Type": "application/json" });
 					res.end();
@@ -42,7 +53,7 @@ function handleRegisterRoute(req, res) {
 				}
 			} else {
 				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify("Password must be 8 characters long"));
+				res.end(JSON.stringify(validatedData));
 			}
 		});
 	} catch (err) {
@@ -78,6 +89,35 @@ function handleLoginRoute(req, res) {
 	}
 }
 
+// Function to handle change password
+function handleChangePassword(req, res, userId) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			body = JSON.parse(body);
+			const response = await user.changePassword(
+				userId,
+				body.oldPassword,
+				body.newPassword,
+				body.confirmPassword
+			);
+			if (!response) {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify("Password updated"));
+			} else {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+			}
+		});
+	} catch (err) {
+		res.writeHead(530, { "Content-Type": "application/json" });
+		console.log(err);
+		res.end();
+	}
+}
 module.exports = {
 	handleUserRoutes,
 };

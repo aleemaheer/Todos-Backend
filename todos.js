@@ -1,6 +1,6 @@
 const fs = require("fs");
-//const path = require("path").join(process.cwd(), "data");
-const path = __dirname + "/data";
+const path = require("path").join(__dirname, "data");
+// const path = __dirname + "/data";
 
 class Todo {
 	constructor() {
@@ -10,7 +10,7 @@ class Todo {
 	init() {
 		try {
 			if (!fs.existsSync(path)) {
-				fs.mkdirSync("data");
+				fs.mkdirSync(path);
 			}
 			if (!fs.existsSync(path + "/todos.json")) {
 				fs.writeFile(path + "/todos.json", JSON.stringify([]), (err) => {
