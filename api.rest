@@ -4,8 +4,9 @@ content-type: application/json
 
 {
 	"userName": "aleem",
-	"email": "aleem@todos.com",
-	"password": "12345678"
+	"email": "aleem@todo.com",
+	"password": "12345678!",
+	"confirm_password": "12345678!"
 }
 
 ### Login
@@ -13,8 +14,8 @@ POST http://localhost:3000/login HTTP/1.1
 content-type: application/json
 
 {
-	"email": "aleem@todos.com",
-	"password": "1234567"
+	"email": "aleem@todo.com",
+	"password": "12345678!"
 }
 
 ### POST REQUEST TO CREATE TODO
