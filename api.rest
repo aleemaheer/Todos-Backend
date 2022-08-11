@@ -14,7 +14,7 @@ PUT http://localhost:3000/account/1
 content-type: application/json
 
 {
-	"oldPassword": "hello####",
+	"oldPassword": "12345678!",
 	"newPassword": "meow####",
 	"confirmPassword": "meow####"
 }

@@ -1,7 +1,7 @@
 const fs = require("fs");
-const md5 = require("md5");
-const { resolve } = require("path");
+const crypto = require("crypto");
 const path = __dirname + "/data";
+const key = "abcdefgh";
 
 class User {
 	constructor() {
@@ -31,7 +31,11 @@ class User {
 		return new Promise(async (resolve, reject) => {
 			const data = await this.usersData();
 			let userId = data.length;
-			password = md5(password);
+			//password = md5(password);
+			const hashedPassword = crypto
+				.createHmac("sha256", key)
+				.update(password)
+				.digest("hex");
 			userId++;
 			let checkEmail = true;
 			if (data.length !== 0) {
@@ -48,7 +52,7 @@ class User {
 					userId,
 					userName,
 					email,
-					password,
+					password: hashedPassword,
 				};
 				data.push(newUser);
 				fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
@@ -72,8 +76,12 @@ class User {
 			try {
 				let userObject;
 				const data = await this.usersData();
+				const hashedPassword = crypto
+					.createHmac("sha256", key)
+					.update(password)
+					.digest("hex");
 				for (let i = 0; i < data.length; i++) {
-					if (email === data[i].email && md5(password) === data[i].password) {
+					if (email === data[i].email && hashedPassword === data[i].password) {
 						userObject = data[i];
 						break;
 					}
@@ -97,10 +105,14 @@ class User {
 			try {
 				let targetUserIndex = -1;
 				const data = await this.usersData();
+				const hashedOldPassword = crypto
+					.createHmac("sha256", key)
+					.update(oldPassword)
+					.digest("hex");
 				for (let i = 0; i < data.length; i++) {
 					if (
 						data[i].userId === parseInt(userId) &&
-						md5(oldPassword) === data[i].password
+						hashedOldPassword === data[i].password
 					) {
 						targetUserIndex = i;
 						break;
@@ -112,7 +124,11 @@ class User {
 					confirmPassword
 				);
 				if (!passwordValidation && targetUserIndex !== -1) {
-					const updatedPassword = md5(newPassword);
+					const hashedNewPassword = crypto
+						.createHmac("sha256", key)
+						.update(newPassword)
+						.digest("hex");
+					const updatedPassword = hashedNewPassword;
 					data[targetUserIndex].password = updatedPassword;
 					fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
 						if (err) {
