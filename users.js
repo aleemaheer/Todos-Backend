@@ -1,5 +1,6 @@
 const fs = require("fs");
 const md5 = require("md5");
+const { resolve } = require("path");
 const path = __dirname + "/data";
 
 class User {
@@ -86,6 +87,64 @@ class User {
 			} catch (err) {
 				console.log(err);
 				reject();
+			}
+		});
+	}
+
+	// Function to change password
+	changePassword(userId, oldPassword, newPassword) {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let targetUserIndex = -1;
+				const data = await this.usersData();
+				for (let i = 0; i < data.length; i++) {
+					if (
+						data[i].userId === parseInt(userId) &&
+						md5(oldPassword) === data[i].password
+					) {
+						targetUserIndex = i;
+						break;
+					}
+				}
+				// Call validate password function
+				const passwordValidation = await this.validatePassword(newPassword);
+				if (!passwordValidation && targetUserIndex !== -1) {
+					const updatedPassword = md5(newPassword);
+					data[targetUserIndex].password = updatedPassword;
+					fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
+						if (err) {
+							console.log(err);
+						}
+						// File written
+					});
+					resolve();
+				} else {
+					resolve(passwordValidation);
+				}
+			} catch (err) {
+				console.log(err);
+				reject();
+			}
+		});
+	}
+
+	// Function to validate password
+	validatePassword(password) {
+		return new Promise(async (resolve, reject) => {
+			var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+			if (password.length <= 90) {
+				if (format.test(password) && password.length >= 8) {
+					resolve();
+				} else {
+					resolve(
+						"Please use some special characters and password must be 8 characters long."
+					);
+					return;
+				}
+			} else {
+				resolve(
+					"Please must be 8 characters long and must contain special character"
+				);
 			}
 		});
 	}

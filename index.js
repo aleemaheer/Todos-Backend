@@ -17,7 +17,11 @@ const server = http.createServer((req, res) => {
 		return;
 	}
 
-	if (req.url === "/register" || req.url === "/login") {
+	if (
+		req.url === "/register" ||
+		req.url === "/login" ||
+		req.url.match(/\/account\/([0-9]+)/)
+	) {
 		handleUserRoutes.handleUserRoutes(req, res);
 	} else if (req.url === "/todos" || req.url.match(/\/todos\/([0-9]+)/)) {
 		// Handle todos routes

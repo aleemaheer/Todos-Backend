@@ -7,6 +7,9 @@ function handleUserRoutes(req, res) {
 		handleRegisterRoute(req, res);
 	} else if (req.url === "/login" && req.method === "POST") {
 		handleLoginRoute(req, res);
+	} else if (req.url.match(/\/account\/([0-9]+)/) && req.method === "PUT") {
+		const userId = req.url.split("/")[2];
+		handleChangePassword(req, res, userId);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });
 		res.end(JSON.stringify("Route not found"));
@@ -86,6 +89,34 @@ function handleLoginRoute(req, res) {
 	}
 }
 
+// Function to handle change password
+function handleChangePassword(req, res, userId) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			body = JSON.parse(body);
+			const response = await user.changePassword(
+				userId,
+				body.oldPassword,
+				body.newPassword
+			);
+			if (!response) {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify("Password updated"));
+			} else {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+			}
+		});
+	} catch (err) {
+		res.writeHead(530, { "Content-Type": "application/json" });
+		console.log(err);
+		res.end();
+	}
+}
 module.exports = {
 	handleUserRoutes,
 };
