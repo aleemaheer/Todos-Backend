@@ -25,7 +25,7 @@ content-type: application/json
 
 {
 	"email": "aleem@todos.com",
-	"password": "meow####"
+	"password": "123456789!"
 }
 
 ### POST REQUEST TO CREATE TODO

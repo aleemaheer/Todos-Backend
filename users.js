@@ -1,6 +1,6 @@
 const fs = require("fs");
 const crypto = require("crypto");
-const path = __dirname + "/data";
+const path = require("path").join(__dirname, "/data");
 const key = "abcdefgh";
 
 class User {
@@ -19,7 +19,7 @@ class User {
 
 	init() {
 		if (!fs.existsSync(path)) {
-			fs.mkdirSync("data");
+			fs.mkdirSync(path);
 		}
 		if (!fs.existsSync(path + "/users.json")) {
 			fs.writeFileSync(path + "/users.json", JSON.stringify([]));
