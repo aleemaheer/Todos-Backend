@@ -25,7 +25,7 @@ class User {
 			port: 587,
 			auth: {
 				user: "serviceemail06@gmail.com",
-				pass: "auoxzeirdsafdilv",
+				pass: process.env["pass"],
 			},
 		});
 		transporter
