@@ -2,6 +2,8 @@ const fs = require("fs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const { resolve } = require("path");
+const dotenv = require("dotenv");
+dotenv.config();
 const path = require("path").join(__dirname, "/data");
 const key = "abcdefgh";
 
@@ -25,7 +27,7 @@ class User {
 			port: 587,
 			auth: {
 				user: "serviceemail06@gmail.com",
-				pass: "auoxzeirdsafdilv",
+				pass: process.env.pass,
 			},
 		});
 		transporter

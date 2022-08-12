@@ -34,7 +34,7 @@ content-type: application/json
 
 {
 	"email": "aleemaheer5769644@gmail.com",
-	"token": "341exwjhmsn341exwjhmsn",
+	"token": "dkkmdayneofdkkmdayneof",
 	"password": "hello####",
 	"confirmPassword": "hello####"
 }
@@ -44,7 +44,7 @@ content-type: application/json
 
 {
 	"email": "aleemaheer5769644@gmail.com",
-	"password": "hello@@@@"
+	"password": "hello####"
 }
 
 ### POST REQUEST TO CREATE TODO
