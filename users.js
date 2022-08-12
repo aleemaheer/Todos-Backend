@@ -1,5 +1,7 @@
 const fs = require("fs");
+const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const { resolve } = require("path");
 const path = require("path").join(__dirname, "/data");
 const key = "abcdefgh";
 
@@ -15,6 +17,29 @@ class User {
 		} catch (err) {
 			console.log(err);
 		}
+	}
+
+	sendMail(reciever, token) {
+		const transporter = nodemailer.createTransport({
+			host: "smtp.gmail.com",
+			port: 587,
+			auth: {
+				user: "serviceemail06@gmail.com",
+				pass: "auoxzeirdsafdilv",
+			},
+		});
+		transporter
+			.sendMail({
+				from: "Todos Backend", // sender address
+				to: reciever, // list of receivers
+				subject: "Password Verification Token", // Subject line
+				text: `This is some text`, // plain text body
+				html: `<h5>Token ${token}</h5>`, // html body
+			})
+			.then((info) => {
+				console.log("Successfully sended email");
+			})
+			.catch(console.error);
 	}
 
 	init() {
@@ -90,6 +115,10 @@ class User {
 					resolve();
 				} else {
 					delete userObject.password;
+					if (userObject.token && userObject.timeStamp) {
+						delete userObject.token;
+						delete userObject.timeStamp;
+					}
 					resolve(JSON.stringify(userObject));
 				}
 			} catch (err) {
@@ -164,6 +193,93 @@ class User {
 				resolve(
 					"Please confirm password, it must be 8 characters long and must contain special character"
 				);
+			}
+		});
+	}
+
+	// Forgot password
+	forgotPassword(userName, email) {
+		return new Promise(async (resolve, reject) => {
+			let targetUserIndex = -1;
+			const data = await this.usersData();
+			for (let i = 0; i < data.length; i++) {
+				if (data[i].userName === userName && data[i].email === email) {
+					targetUserIndex = i;
+				}
+			}
+			// If user exists then save token in user object and send this token in email
+			const rand = () => {
+				const rand = Math.random().toString(36).substr(2);
+				return rand + rand;
+			};
+			if (targetUserIndex === -1) {
+				resolve();
+			} else {
+				const timeStamp = Math.floor(new Date().getTime());
+				const token = rand();
+				data[targetUserIndex].token = token;
+				data[targetUserIndex].timeStamp = timeStamp;
+				this.sendMail(email, token);
+				fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
+					if (err) {
+						console.log(err);
+						reject();
+					}
+					// file written
+					resolve();
+				});
+			}
+		});
+	}
+
+	// Function to set New password when forgetted
+	setNewPassword(email, token, password, confirmPassword) {
+		return new Promise(async (resolve, reject) => {
+			let targetUserIndex = -1;
+			let message;
+			const time = Math.floor(new Date().getTime()); // This will return time in milliseconds
+			let twoMinuteAgo = time - 120000;
+			const validatedPasswordError = await this.validatePassword(
+				password,
+				confirmPassword
+			);
+			if (!validatedPasswordError) {
+				const data = await this.usersData();
+				// Check that email and token is correct
+				for (let i = 0; i < data.length; i++) {
+					if (data[i].email === email && data[i].token === token) {
+						if (data[i].timeStamp >= twoMinuteAgo) {
+							targetUserIndex = i;
+							break;
+						} else {
+							message = "Token Expired";
+						}
+					}
+				}
+				if (targetUserIndex !== -1) {
+					const hashedPassword = crypto
+						.createHmac("sha256", key)
+						.update(password)
+						.digest("hex");
+					data[targetUserIndex].password = hashedPassword;
+					delete data[targetUserIndex].timeStamp;
+					delete data[targetUserIndex].token;
+					fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
+						if (err) {
+							console.log(err);
+						}
+						// File written successfully
+					});
+					resolve();
+				} else {
+					if (message) {
+						resolve(message);
+					} else {
+						resolve("Please write all fields correctly");
+					}
+				}
+			} else {
+				resolve(validatedPasswordError);
 			}
 		});
 	}

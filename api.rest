@@ -4,7 +4,7 @@ content-type: application/json
 
 {
 	"userName": "aleem",
-	"email": "aleem@todos.com",
+	"email": "aleemaheer5769644@gmail.com",
 	"password": "12345678!",
 	"confirm_password": "12345678!"
 }
@@ -19,13 +19,32 @@ content-type: application/json
 	"confirmPassword": "meow####"
 }
 
+### Forget password API 1
+POST http://localhost:3000/forgot
+content-type: application/json
+
+{
+	"userName": "aleem",
+	"email": "aleemaheer5769644@gmail.com"
+}
+
+### Forget password API 2
+PUT http://localhost:3000/forgot
+content-type: application/json
+
+{
+	"email": "aleemaheer5769644@gmail.com",
+	"token": "341exwjhmsn341exwjhmsn",
+	"password": "hello####",
+	"confirmPassword": "hello####"
+}
 ### Login
 POST http://localhost:3000/login HTTP/1.1
 content-type: application/json
 
 {
-	"email": "aleem@todos.com",
-	"password": "123456789!"
+	"email": "aleemaheer5769644@gmail.com",
+	"password": "hello@@@@"
 }
 
 ### POST REQUEST TO CREATE TODO
