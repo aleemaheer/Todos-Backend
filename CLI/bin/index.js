@@ -8,11 +8,15 @@ const validator = require("../../routes/validateRegistration");
 const User = require("../../users");
 const user = new User.User();
 const Todo = require("../../todos");
+const { read } = require("fs");
+const { resolve } = require("path");
 const todo = new Todo.Todo();
 
 console.clear();
 console.log("Welcome to Todos Backend CLI");
-console.log("What you want to do: \n1- Login\n2- Register\n3- (0 to quit)");
+console.log(
+	"What you want to do: \n1- Login\n2- Register\n3- Forget Password 4- (0 to quit)"
+);
 
 // Question to ask login or register
 let isLoggedIn = false;
@@ -53,6 +57,12 @@ function authorizeUser() {
 						);
 					});
 					// readline.close();
+				});
+			});
+		} else if (loginOrRegister === "3") {
+			readline.question("Enter your User Name: ", (userName) => {
+				readline.question("Enter your email: ", (email) => {
+					sendEmail(userName, email);
 				});
 			});
 		} else if (loginOrRegister === "0") {
@@ -183,6 +193,59 @@ function handleChangePassword() {
 		readline.question("Enter your new password: ", (newPassword) => {
 			readline.question("Confirm your new password: ", (confirmPassword) => {
 				changePassword(oldPassword, newPassword, confirmPassword);
+			});
+		});
+	});
+}
+
+// Function to send Email
+async function sendEmail(userName, email) {
+	const response = await user.forgotPassword(userName, email);
+	if (!response || response) {
+		console.log("Check your email address, token has been sended");
+		handleForgetPassword();
+	} else {
+		console.log(response);
+		console.log("BYE BYE");
+	}
+}
+
+// Function to handle forget password
+async function handleForgetPassword() {
+	readline.question("1- Press 1 to next\n2- 0 to exit", (one) => {
+		if (one === "1") {
+			changePasswordWhenForgetted();
+		} else if (one === "0") {
+			readline.close();
+		} else {
+			console.log("Invalid Input");
+			handleForgetPassword();
+		}
+	});
+}
+
+// Function to change password, when forgetted
+function changePasswordWhenForgetted() {
+	readline.question("Enter your email: ", (email) => {
+		readline.question("Enter token: ", (token) => {
+			readline.question("Enter new Password: ", (password) => {
+				readline.question("Confirm password: ", async (confirmPassword) => {
+					const response = await user.setNewPassword(
+						email,
+						token,
+						password,
+						confirmPassword
+					);
+					if (!response) {
+						console.log(
+							"Successfully password changed, Now you can login with your password"
+						);
+						authorizeUser();
+					} else {
+						console.log(response);
+						console.log("BYE BYE");
+					}
+				});
 			});
 		});
 	});
