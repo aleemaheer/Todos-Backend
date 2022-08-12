@@ -10,6 +10,10 @@ function handleUserRoutes(req, res) {
 	} else if (req.url.match(/\/account\/([0-9]+)/) && req.method === "PUT") {
 		const userId = req.url.split("/")[2];
 		handleChangePassword(req, res, userId);
+	} else if (req.url === "/forgot" && req.method === "POST") {
+		handleForgotPassword(req, res);
+	} else if (req.url === "/forgot" && req.method === "PUT") {
+		handleNewPasswordAfterForgetted(req, res);
 	} else {
 		res.writeHead(502, { "Content-Type": "application/json" });
 		res.end(JSON.stringify("Route not found"));
@@ -118,6 +122,61 @@ function handleChangePassword(req, res, userId) {
 		res.end();
 	}
 }
+
+// Function handle forgot password
+function handleForgotPassword(req, res) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			body = JSON.parse(body);
+			const response = await user.forgotPassword(body.userName, body.email);
+			if (response || !response) {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(
+					JSON.stringify("Check your email, verification code has been sended")
+				);
+			}
+		});
+	} catch (err) {
+		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
+		res.end();
+	}
+}
+
+// Function to handle set new password
+function handleNewPasswordAfterForgetted(req, res) {
+	try {
+		let body = "";
+		req.on("data", (chunk) => {
+			body += chunk;
+		});
+		req.on("end", async () => {
+			body = JSON.parse(body);
+			const response = await user.setNewPassword(
+				body.email,
+				body.token,
+				body.password,
+				body.confirmPassword
+			);
+			if (!response) {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify("Password Changed Successfully"));
+			} else {
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+			}
+		});
+	} catch (err) {
+		console.log(err);
+		res.writeHead(503, { "Content-Type": "application/json" });
+		res.end();
+	}
+}
+
 module.exports = {
 	handleUserRoutes,
 };

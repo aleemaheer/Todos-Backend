@@ -20,7 +20,8 @@ const server = http.createServer((req, res) => {
 	if (
 		req.url === "/register" ||
 		req.url === "/login" ||
-		req.url.match(/\/account\/([0-9]+)/)
+		req.url.match(/\/account\/([0-9]+)/) ||
+		req.url === "/forgot"
 	) {
 		handleUserRoutes.handleUserRoutes(req, res);
 	} else if (req.url === "/todos" || req.url.match(/\/todos\/([0-9]+)/)) {
