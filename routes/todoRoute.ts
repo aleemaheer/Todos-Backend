@@ -1,5 +1,6 @@
-const Todo = require("../todos");
-const todo = new Todo.Todo();
+//const Todo = require("../todos");
+import {Todo} from "../todos";
+var todo = new Todo.Todos();
 
 function handleTodosRoutes(req, res) {
 	if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
@@ -84,13 +85,13 @@ async function handleDeleteTodo(req, res, todoId) {
 // Function to handle update todo
 function handleUpdateTodo(req, res, todoId) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
 			body = JSON.parse(body);
-			const title = body.title;
+			const title: any = body.title;
 			const description = body.description;
 			const userId = req.headers.user_id;
 			const response = await todo.updateTodo(
@@ -117,7 +118,7 @@ function handleUpdateTodo(req, res, todoId) {
 // Function to handle update todo status
 function handleUpdateTodoStatus(req, res, todoId) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
@@ -148,7 +149,7 @@ function handleUpdateTodoStatus(req, res, todoId) {
 // Function to handle create todo
 function handleCreateTodo(req, res) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});

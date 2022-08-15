@@ -114,6 +114,7 @@ function handleLoginRoute(req, res) {
     try {
         var body_2 = "";
         req.on("data", function (chunk) {
+            console.log(chunk);
             body_2 += chunk;
         });
         req.on("end", function () { return __awaiter(_this, void 0, void 0, function () {

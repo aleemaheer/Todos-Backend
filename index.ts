@@ -21,18 +21,20 @@ const server = http.createServer((req, res) => {
 	if (
 		req.url === "/register" ||
 		req.url === "/login" ||
-		req.url.match(/\/account\/([0-9]+)/) ||
 		req.url === "/forgot"
 	) {
-		handleUserRoutes.handleUserRoutes(req, res);
-	} else if (req.url === "/todos" || req.url.match(/\/todos\/([0-9]+)/)) {
+		handleUserRoutes.handleUserRoutes(req, res); 
+	} else if (req.url === "/todos") {
 		// Handle todos routes
 		handleTodosRoutes.handleTodosRoutes(req, res);
-	} else {
-		res.writeHead(502, { "Content-Type": "application/json" });
-		res.end(JSON.stringify("Route not found"));
+	}
+	else {
+		handleMatchingUrls(req, res);
+		// res.writeHead(502, { "Content-Type": "application/json" });
+		// res.end(JSON.stringify("Route not found"));
 	}
 });
+// req.url.match(/\/todos\/([0-9]+)/
 
 function handleCors(req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
@@ -43,6 +45,17 @@ function handleCors(req, res) {
 	res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE,PATCH");
 	res.setHeader("Access-Control-Allow-Credentials", true);
 	res.statusCode = 200;
+}
+
+function handleMatchingUrls(req, res) {
+	if (req.url.match(/\/account\/([0-9]+)/)) {
+		handleUserRoutes.handleUserRoutes(req, res); 
+	} else if(req.url.match(/\/todos\/([0-9]+)/)) {
+		handleTodosRoutes.handleTodosRoutes(req, res); 
+	} else {
+		res.writeHead(503, {"Content-Type": "application/json"});
+		res.end(JSON.stringify("Route Not Found"));
+	}
 }
 
 const PORT = process.env.PORT || 3000;

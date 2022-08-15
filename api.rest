@@ -1,5 +1,5 @@
 ### Register API
-POST http://localhost:3000/register HTTP/1.1
+POST http://localhost:3000/register/l HTTP/1.1
 content-type: application/json
 
 {
@@ -15,8 +15,8 @@ content-type: application/json
 
 {
 	"oldPassword": "12345678!",
-	"newPassword": "meow####",
-	"confirmPassword": "meow####"
+	"newPassword": "hello####",
+	"confirmPassword": "hello####"
 }
 
 ### Forget password API 1
@@ -44,13 +44,13 @@ content-type: application/json
 
 {
 	"email": "aleemaheerup@gmail.com",
-	"password": "12345678!"
+	"password": "hello####"
 }
 
 ### POST REQUEST TO CREATE TODO
 POST http://localhost:3000/todos HTTP/1.1
 content-type: application/json
-user_id: 2
+user_id: 1
 
 {
 	"title": "Wash clothes",
@@ -62,7 +62,7 @@ GET http://localhost:3000/todos HTTP/1.1
 user_id: 1
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/2 HTTP/1.1
+GET http://localhost:3000/todos/1 HTTP/1.1
 user_id: 1
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
@@ -75,7 +75,7 @@ user_id: 1
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/2 HTTP/1.1
+DELETE http://localhost:3000/todos/1 HTTP/1.1
 user_id: 1
 
 ### PUT REQUEST TO UPDATE TODO

@@ -81,7 +81,7 @@ var User = /** @class */ (function () {
             to: reciever,
             subject: "Password Verification Token",
             text: "This is some text",
-            html: "<h5>Token ".concat(token, "</h5>")
+            html: "<h4>Token ".concat(token, "</h4>")
         })
             .then(function (info) {
             console.log("Successfully sended email");

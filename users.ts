@@ -24,7 +24,7 @@ class User {
 		}
 	}
 
-	sendMail(reciever, token) {
+	sendMail(reciever: string, token: string) {
 		const transporter = nodemailer.createTransport({
 			host: "smtp.gmail.com",
 			port: 587,
@@ -39,7 +39,7 @@ class User {
 				to: reciever, // list of receivers
 				subject: "Password Verification Token", // Subject line
 				text: `This is some text`, // plain text body
-				html: `<h5>Token ${token}</h5>`, // html body
+				html: `<h4>Token ${token}</h4>`, // html body
 			})
 			.then((info) => {
 				console.log("Successfully sended email");
@@ -57,7 +57,7 @@ class User {
 	}
 
 	// Register User
-	register(userName, email, password) {
+	register(userName: string, email: string, password: string) {
 		return new Promise(async (resolve, reject) => {
 			const data = await this.usersData();
 			let userId = data.length;
@@ -78,7 +78,7 @@ class User {
 				}
 			}
 			if (checkEmail) {
-				const newUser = {
+				let newUser = {
 					userId,
 					userName,
 					email,
@@ -101,7 +101,7 @@ class User {
 	}
 
 	// Login
-	login(email, password) {
+	login(email: string, password: string) {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let userObject;
@@ -134,7 +134,7 @@ class User {
 	}
 
 	// Function to change password
-	changePassword(userId, oldPassword, newPassword, confirmPassword) {
+	changePassword(userId: string, oldPassword: string, newPassword: string, confirmPassword: string) {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let targetUserIndex = -1;
@@ -182,7 +182,7 @@ class User {
 	}
 
 	// Function to validate password
-	validatePassword(password, confirmPassword) {
+	validatePassword(password: string, confirmPassword: string) {
 		return new Promise(async (resolve, reject) => {
 			var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
 			if (password.length <= 90 && password === confirmPassword) {

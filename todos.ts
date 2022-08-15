@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path").join(__dirname, "data");
 // const path = __dirname + "/data";
-
-class Todo {
+export module Todo{
+export class Todos {
 	constructor() {
 		this.init();
 	}
@@ -79,7 +79,7 @@ class Todo {
 	deleteTodo(userId, todoId) {
 		return new Promise(async (resolve, reject) => {
 			let targetTodo = -1;
-			const filteredTodos = [];
+			const filteredTodos: Array<String> = [];
 			const todosData = await this.readTodos();
 			for (let i = 0; i < todosData.length; i++) {
 				if (
@@ -221,7 +221,7 @@ class Todo {
 		return new Promise(async (resolve) => {
 			const todosData = await this.readTodos();
 			const usersData = await this.readUsers();
-			const filteredTodos = [];
+			let filteredTodos: Array<String> = [];
 			let i = 1;
 			for (i = 0; i < todosData.length; i++) {
 				if (todosData[i].userId === parseInt(userId)) {
@@ -247,7 +247,8 @@ class Todo {
 		});
 	}
 }
+}
 
-module.exports = {
-	Todo,
-};
+// module.exports = {
+// 	Todo,
+// };

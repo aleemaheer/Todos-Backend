@@ -23,7 +23,7 @@ function handleUserRoutes(req, res) {
 // Function to handle register route
 function handleRegisterRoute(req, res) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
@@ -70,8 +70,9 @@ function handleRegisterRoute(req, res) {
 // Function to handle login route
 function handleLoginRoute(req, res) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
+			console.log(chunk)
 			body += chunk;
 		});
 		req.on("end", async () => {
@@ -96,7 +97,7 @@ function handleLoginRoute(req, res) {
 // Function to handle change password
 function handleChangePassword(req, res, userId) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
@@ -126,7 +127,7 @@ function handleChangePassword(req, res, userId) {
 // Function handle forgot password
 function handleForgotPassword(req, res) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
@@ -150,7 +151,7 @@ function handleForgotPassword(req, res) {
 // Function to handle set new password
 function handleNewPasswordAfterForgetted(req, res) {
 	try {
-		let body = "";
+		let body: any = "";
 		req.on("data", (chunk) => {
 			body += chunk;
 		});
