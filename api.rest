@@ -4,7 +4,7 @@ content-type: application/json
 
 {
 	"userName": "aleem",
-	"email": "aleemaheer5769644@gmail.com",
+	"email": "aleemaheerup@gmail.com",
 	"password": "12345678!",
 	"confirm_password": "12345678!"
 }
@@ -15,8 +15,8 @@ content-type: application/json
 
 {
 	"oldPassword": "12345678!",
-	"newPassword": "meow####",
-	"confirmPassword": "meow####"
+	"newPassword": "hello####",
+	"confirmPassword": "hello####"
 }
 
 ### Forget password API 1
@@ -25,7 +25,7 @@ content-type: application/json
 
 {
 	"userName": "aleem",
-	"email": "aleemaheer5769644@gmail.com"
+	"email": "aleemaheerup@gmail.com"
 }
 
 ### Forget password API 2
@@ -33,18 +33,18 @@ PUT http://localhost:3000/forgot
 content-type: application/json
 
 {
-	"email": "aleemaheer5769644@gmail.com",
-	"token": "dkkmdayneofdkkmdayneof",
-	"password": "hello####",
-	"confirmPassword": "hello####"
+	"email": "aleemaheerup@gmail.com",
+	"token": "9e82jd844n99e82jd844n9",
+	"password": "hello@@@@",
+	"confirmPassword": "hello@@@@"
 }
 ### Login
 POST http://localhost:3000/login HTTP/1.1
 content-type: application/json
 
 {
-	"email": "aleemaheer5769644@gmail.com",
-	"password": "hello####"
+	"email": "aleemaheerup@gmail.com",
+	"password": "12345678!"
 }
 
 ### POST REQUEST TO CREATE TODO
@@ -63,7 +63,7 @@ user_id: 1
 
 ### GET SINGLE TODO
 GET http://localhost:3000/todos/2 HTTP/1.1
-user_id: 1
+user_id: 12
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
 PATCH http://localhost:3000/todos/1 HTTP/1.1
