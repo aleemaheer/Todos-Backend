@@ -25,7 +25,7 @@ class User {
 	}
 
 	sendMail(reciever: string, token: string) {
-		const transporter = nodemailer.createTransport({
+		const transporter: any = nodemailer.createTransport({
 			host: "smtp.gmail.com",
 			port: 587,
 			auth: {
@@ -78,7 +78,7 @@ class User {
 				}
 			}
 			if (checkEmail) {
-				let newUser = {
+				let newUser: { userId?: any, password?: any, userName?: any,  email?: any} = {
 					userId,
 					userName,
 					email,
@@ -90,7 +90,9 @@ class User {
 						console.log(err);
 						reject();
 					}
-					// newUser = JSON.parse(newUser.splice(3, 1));
+					//newUser = JSON.parse(newUser.splice(3, 1));
+					//const newUser2: { password?: string } = { password: password};
+					//delete newUser['newUser2'];
 					delete newUser.password;
 					resolve(JSON.stringify(newUser));
 				});

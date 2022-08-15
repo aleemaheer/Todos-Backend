@@ -72,7 +72,6 @@ function handleLoginRoute(req, res) {
 	try {
 		let body: any = "";
 		req.on("data", (chunk) => {
-			console.log(chunk)
 			body += chunk;
 		});
 		req.on("end", async () => {

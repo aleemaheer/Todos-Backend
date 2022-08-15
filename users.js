@@ -134,7 +134,9 @@ var User = /** @class */ (function () {
                                     console.log(err);
                                     reject();
                                 }
-                                // newUser = JSON.parse(newUser.splice(3, 1));
+                                //newUser = JSON.parse(newUser.splice(3, 1));
+                                //const newUser2: { password?: string } = { password: password};
+                                //delete newUser['newUser2'];
                                 delete newUser_1.password;
                                 resolve(JSON.stringify(newUser_1));
                             });
