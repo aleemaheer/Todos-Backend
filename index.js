@@ -9,7 +9,7 @@ var server = http.createServer(function (req, res) {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "OPTIONS, POST, GET, DELETE, PUT, PATCH",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-        "Access-Control-Allow-Credentials": "true"
+        "Access-Control-Allow-Credentials": true
     };
     if (req.method === "OPTIONS") {
         res.writeHead(204, headers);
