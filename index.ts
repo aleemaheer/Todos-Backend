@@ -4,12 +4,12 @@ const handleTodosRoutes = require("./routes/todoRoute");
 const handleUserRoutes = require("./routes/userRoute");
 
 const server = http.createServer((req, res) => {
-	const headers = {
+	const headers: any = {
 		"Access-Control-Allow-Origin": "*",
 		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, DELETE, PUT, PATCH",
 		"Access-Control-Allow-Headers":
 			"Origin, X-Requested-With, Content-Type, Accept",
-		"Access-Control-Allow-Credentials": "true",
+		"Access-Control-Allow-Credentials": true,
 	};
 
 	if (req.method === "OPTIONS") {
