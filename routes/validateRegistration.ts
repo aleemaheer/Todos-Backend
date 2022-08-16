@@ -1,9 +1,9 @@
 // Function to validate register user
 async function validateRegisteration(
-	userName,
-	email,
-	password,
-	confirm_password
+	userName: string,
+	email: string,
+	password: string,
+	confirm_password: string
 ) {
 	return new Promise((resolve, reject) => {
 		let count = 0;
@@ -46,7 +46,7 @@ async function validateRegisteration(
 }
 
 // function to test validate function
-async function testValidator(userName, email, password, confirm_password) {
+async function testValidator(userName: string, email: string, password: string, confirm_password: string) {
 	try {
 		const response = await validateRegisteration(
 			userName,

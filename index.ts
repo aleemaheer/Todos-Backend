@@ -36,7 +36,7 @@ const server = http.createServer((req, res) => {
 });
 // req.url.match(/\/todos\/([0-9]+)/
 
-function handleCors(req, res) {
+function handleCors(req: any, res: any) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader(
 		"Access-Control-Allow-Headers",
@@ -47,7 +47,7 @@ function handleCors(req, res) {
 	res.statusCode = 200;
 }
 
-function handleMatchingUrls(req, res) {
+function handleMatchingUrls(req: any, res: any) {
 	if (req.url.match(/\/account\/([0-9]+)/)) {
 		handleUserRoutes.handleUserRoutes(req, res); 
 	} else if(req.url.match(/\/todos\/([0-9]+)/)) {
