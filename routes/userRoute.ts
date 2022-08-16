@@ -2,13 +2,13 @@ const User = require("../users");
 const validater = require("./validateRegistration");
 const user = new User.User();
 
-function handleUserRoutes(req, res) {
+function handleUserRoutes(req: any, res: any) {
 	if (req.url === "/register" && req.method === "POST") {
 		handleRegisterRoute(req, res);
 	} else if (req.url === "/login" && req.method === "POST") {
 		handleLoginRoute(req, res);
 	} else if (req.url.match(/\/account\/([0-9]+)/) && req.method === "PUT") {
-		const userId = req.url.split("/")[2];
+		const userId = parseInt(req.url.split("/")[2]);
 		handleChangePassword(req, res, userId);
 	} else if (req.url === "/forgot" && req.method === "POST") {
 		handleForgotPassword(req, res);
@@ -21,10 +21,10 @@ function handleUserRoutes(req, res) {
 }
 
 // Function to handle register route
-function handleRegisterRoute(req, res) {
+function handleRegisterRoute(req: any , res: any) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
@@ -68,10 +68,10 @@ function handleRegisterRoute(req, res) {
 }
 
 // Function to handle login route
-function handleLoginRoute(req, res) {
+function handleLoginRoute(req: any, res: any) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
@@ -94,10 +94,10 @@ function handleLoginRoute(req, res) {
 }
 
 // Function to handle change password
-function handleChangePassword(req, res, userId) {
+function handleChangePassword(req: any, res: any, userId: number) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
@@ -124,10 +124,10 @@ function handleChangePassword(req, res, userId) {
 }
 
 // Function handle forgot password
-function handleForgotPassword(req, res) {
+function handleForgotPassword(req: any, res: any) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
@@ -148,10 +148,10 @@ function handleForgotPassword(req, res) {
 }
 
 // Function to handle set new password
-function handleNewPasswordAfterForgetted(req, res) {
+function handleNewPasswordAfterForgetted(req: any, res: any) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {

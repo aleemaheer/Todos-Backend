@@ -10,7 +10,7 @@ content-type: application/json
 }
 
 ### Change password API
-PUT http://localhost:3000/account/1
+PUT http://localhost:3000/account/2
 content-type: application/json
 
 {
@@ -44,7 +44,7 @@ content-type: application/json
 
 {
 	"email": "aleemaheerup@gmail.com",
-	"password": "12345678!"
+	"password": "hello####"
 }
 
 ### POST REQUEST TO CREATE TODO
@@ -63,10 +63,10 @@ user_id: 1
 
 ### GET SINGLE TODO
 GET http://localhost:3000/todos/2 HTTP/1.1
-user_id: 12
+user_id: 1
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
-PATCH http://localhost:3000/todos/1 HTTP/1.1
+PATCH http://localhost:3000/todos/2 HTTP/1.1
 content-type: application/json
 user_id: 1
 

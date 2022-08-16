@@ -36,27 +36,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-//const Todo = require("../todos");
 var todos_1 = require("../todos");
 var todo = new todos_1.Todo.Todos();
 function handleTodosRoutes(req, res) {
     if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
-        var todoId = req.url.split("/")[2];
+        var todoId = parseInt(req.url.split("/")[2]);
         handleGetTodo(req, res, todoId);
     }
     else if (req.url === "/todos" && req.method === "GET") {
         handleGetTodos(req, res);
     }
     else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
-        var todoId = req.url.split("/")[2];
+        var todoId = parseInt(req.url.split("/")[2]);
         handleDeleteTodo(req, res, todoId);
     }
     else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
-        var todoId = req.url.split("/")[2];
+        var todoId = parseInt(req.url.split("/")[2]);
         handleUpdateTodo(req, res, todoId);
     }
     else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PATCH") {
-        var todoId = req.url.split("/")[2];
+        var todoId = parseInt(req.url.split("/")[2]);
         handleUpdateTodoStatus(req, res, todoId);
     }
     else if (req.url === "/todos" && req.method === "POST") {
@@ -139,7 +138,7 @@ function handleDeleteTodo(req, res, todoId) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    userId = req.headers.user_id;
+                    userId = parseInt(req.headers.user_id);
                     return [4 /*yield*/, todo.deleteTodo(userId, todoId)];
                 case 1:
                     response = _a.sent();
@@ -179,7 +178,7 @@ function handleUpdateTodo(req, res, todoId) {
                         body_1 = JSON.parse(body_1);
                         title = body_1.title;
                         description = body_1.description;
-                        userId = req.headers.user_id;
+                        userId = parseInt(req.headers.user_id);
                         return [4 /*yield*/, todo.updateTodo(todoId, userId, title, description)];
                     case 1:
                         response = _a.sent();
@@ -216,7 +215,7 @@ function handleUpdateTodoStatus(req, res, todoId) {
                 switch (_a.label) {
                     case 0:
                         body_2 = JSON.parse(body_2);
-                        userId = req.headers.user_id;
+                        userId = parseInt(req.headers.user_id);
                         isCompleted = body_2.isCompleted;
                         return [4 /*yield*/, todo.updateTodoStatus(todoId, userId, isCompleted)];
                     case 1:

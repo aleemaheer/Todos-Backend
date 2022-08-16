@@ -41,7 +41,7 @@ class User {
 				text: `This is some text`, // plain text body
 				html: `<h4>Token ${token}</h4>`, // html body
 			})
-			.then((info) => {
+			.then((info: string) => {
 				console.log("Successfully sended email");
 			})
 			.catch(console.error);
@@ -205,7 +205,7 @@ class User {
 	}
 
 	// Forgot password
-	forgotPassword(userName, email) {
+	forgotPassword(userName: string, email: string) {
 		return new Promise(async (resolve, reject) => {
 			let targetUserIndex = -1;
 			const data = await this.usersData();
@@ -240,7 +240,7 @@ class User {
 	}
 
 	// Function to set New password when forgetted
-	setNewPassword(email, token, password, confirmPassword) {
+	setNewPassword(email: string, token: string, password: string, confirmPassword: string) {
 		return new Promise(async (resolve, reject) => {
 			let targetUserIndex = -1;
 			let message;

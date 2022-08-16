@@ -1,21 +1,22 @@
 //const Todo = require("../todos");
+import { type } from "os";
 import {Todo} from "../todos";
 var todo = new Todo.Todos();
 
-function handleTodosRoutes(req, res) {
+function handleTodosRoutes(req: any, res: any) {
 	if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "GET") {
-		const todoId = req.url.split("/")[2];
+		const todoId = parseInt(req.url.split("/")[2]);
 		handleGetTodo(req, res, todoId);
 	} else if (req.url === "/todos" && req.method === "GET") {
 		handleGetTodos(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "DELETE") {
-		const todoId = req.url.split("/")[2];
+		const todoId = parseInt(req.url.split("/")[2]);
 		handleDeleteTodo(req, res, todoId);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PUT") {
-		const todoId = req.url.split("/")[2];
+		const todoId = parseInt(req.url.split("/")[2]);
 		handleUpdateTodo(req, res, todoId);
 	} else if (req.url.match(/\/todos\/([0-9]+)/) && req.method === "PATCH") {
-		const todoId = req.url.split("/")[2];
+		const todoId = parseInt(req.url.split("/")[2]);
 		handleUpdateTodoStatus(req, res, todoId);
 	} else if (req.url === "/todos" && req.method === "POST") {
 		handleCreateTodo(req, res);
@@ -26,7 +27,7 @@ function handleTodosRoutes(req, res) {
 }
 
 // Function to handle Get todo route
-async function handleGetTodo(req, res, todoId) {
+async function handleGetTodo(req: any, res: any, todoId: number) {
 	try {
 		const userId = parseInt(req.headers.user_id);
 		const response = await todo.getTodo(userId, todoId);
@@ -45,7 +46,7 @@ async function handleGetTodo(req, res, todoId) {
 }
 
 // Function to handle Get todos route
-async function handleGetTodos(req, res) {
+async function handleGetTodos(req: any, res: any) {
 	try {
 		const userId = parseInt(req.headers.user_id);
 		const response = await todo.getTodos(userId);
@@ -64,9 +65,9 @@ async function handleGetTodos(req, res) {
 }
 
 // Function to handle delete todo
-async function handleDeleteTodo(req, res, todoId) {
+async function handleDeleteTodo(req: any, res: any, todoId: number) {
 	try {
-		const userId = req.headers.user_id;
+		const userId = parseInt(req.headers.user_id);
 		const response = await todo.deleteTodo(userId, todoId);
 		if (!response) {
 			res.writeHead(404, { "Content-Type": "application/json" });
@@ -83,17 +84,17 @@ async function handleDeleteTodo(req, res, todoId) {
 }
 
 // Function to handle update todo
-function handleUpdateTodo(req, res, todoId) {
+function handleUpdateTodo(req: any, res: any, todoId: number) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
 			body = JSON.parse(body);
 			const title: any = body.title;
 			const description = body.description;
-			const userId = req.headers.user_id;
+			const userId = parseInt(req.headers.user_id);
 			const response = await todo.updateTodo(
 				todoId,
 				userId,
@@ -116,16 +117,16 @@ function handleUpdateTodo(req, res, todoId) {
 }
 
 // Function to handle update todo status
-function handleUpdateTodoStatus(req, res, todoId) {
+function handleUpdateTodoStatus(req: any, res: any, todoId: number) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {
 			body = JSON.parse(body);
-			const userId = req.headers.user_id;
-			const isCompleted: boolean = body.isCompleted;
+			const userId = parseInt(req.headers.user_id);
+			const isCompleted: string = body.isCompleted;
 			const response = await todo.updateTodoStatus(
 				todoId,
 				userId,
@@ -147,10 +148,10 @@ function handleUpdateTodoStatus(req, res, todoId) {
 }
 
 // Function to handle create todo
-function handleCreateTodo(req, res) {
+function handleCreateTodo(req: any, res: any) {
 	try {
 		let body: any = "";
-		req.on("data", (chunk) => {
+		req.on("data", (chunk: any) => {
 			body += chunk;
 		});
 		req.on("end", async () => {

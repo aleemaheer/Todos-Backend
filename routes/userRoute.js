@@ -45,7 +45,7 @@ function handleUserRoutes(req, res) {
         handleLoginRoute(req, res);
     }
     else if (req.url.match(/\/account\/([0-9]+)/) && req.method === "PUT") {
-        var userId = req.url.split("/")[2];
+        var userId = parseInt(req.url.split("/")[2]);
         handleChangePassword(req, res, userId);
     }
     else if (req.url === "/forgot" && req.method === "POST") {

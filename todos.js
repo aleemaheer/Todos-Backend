@@ -122,7 +122,7 @@ var Todo;
                             todosData = _a.sent();
                             for (i = 0; i < todosData.length; i++) {
                                 if (todosData[i].userId === userId &&
-                                    parseInt(todosData[i].todoId) === parseInt(todoId)) {
+                                    parseInt(todosData[i].todoId) === todoId) {
                                     targetTodo = todosData[i];
                                 }
                             }
@@ -154,8 +154,8 @@ var Todo;
                         case 1:
                             todosData = _a.sent();
                             for (i = 0; i < todosData.length; i++) {
-                                if (todosData[i].userId === parseInt(userId) &&
-                                    todosData[i].todoId === parseInt(todoId)) {
+                                if (todosData[i].userId === userId &&
+                                    todosData[i].todoId === todoId) {
                                     targetTodo = i;
                                     break;
                                 }
@@ -178,7 +178,7 @@ var Todo;
                                         }
                                         data = JSON.parse(data);
                                         for (var i = 0; i < data.length; i++) {
-                                            if (data[i].userId === parseInt(userId)) {
+                                            if (data[i].userId === userId) {
                                                 filteredTodos.push(data[i]);
                                             }
                                         }
@@ -202,8 +202,8 @@ var Todo;
                         case 1:
                             todosData = _a.sent();
                             for (i = 0; i < todosData.length; i++) {
-                                if (todosData[i].todoId === parseInt(todoId) &&
-                                    todosData[i].userId === parseInt(userId)) {
+                                if (todosData[i].todoId === todoId &&
+                                    todosData[i].userId === userId) {
                                     targetTodo = i;
                                     break;
                                 }
@@ -238,8 +238,8 @@ var Todo;
                         case 1:
                             todosData = _a.sent();
                             for (i = 0; i < todosData.length; i++) {
-                                if (todosData[i].userId === parseInt(userId) &&
-                                    todosData[i].todoId === parseInt(todoId)) {
+                                if (todosData[i].userId === userId &&
+                                    todosData[i].todoId === todoId) {
                                     targetTodo = i;
                                     break;
                                 }
@@ -328,13 +328,13 @@ var Todo;
                             filteredTodos = [];
                             i = 1;
                             for (i = 0; i < todosData.length; i++) {
-                                if (todosData[i].userId === parseInt(userId)) {
+                                if (todosData[i].userId === userId) {
                                     filteredTodos.push(todosData[i]);
                                 }
                             }
                             existUser = false;
                             for (i_1 = 0; i_1 < usersData.length; i_1++) {
-                                if (usersData[i_1].userId === parseInt(userId)) {
+                                if (usersData[i_1].userId === userId) {
                                     existUser = true;
                                     break;
                                 }
