@@ -1,13 +1,11 @@
-//const fs = require("fs");
 import * as fs from 'fs';
-//const nodemailer = require("nodemailer");
 import * as nodemailer from 'nodemailer';
 import * as crypto from 'crypto';
-//const crypto = require("crypto");
-//const dotenv = require("dotenv");
 import * as dotenv from 'dotenv';
 dotenv.config();
 const path = require("path").join(__dirname, "/data");
+//const pool = require("./db");
+import {pool} from "./db"
 const key = "abcdefgh";
 
 class User {
@@ -59,43 +57,20 @@ class User {
 	// Register User
 	register(userName: string, email: string, password: string) {
 		return new Promise(async (resolve, reject) => {
-			const data = await this.usersData();
-			let userId = data.length;
-			//password = md5(password);
+			const data = await pool.query("SELECT email FROM users WHERE email = $1", [email]);
 			const hashedPassword = crypto
 				.createHmac("sha256", key)
 				.update(password)
 				.digest("hex");
-			userId++;
 			let checkEmail = true;
-			if (data.length !== 0) {
-				// Check user's email that same emails cannot be created
-				for (let i = 0; i < data.length; i++) {
-					if (data[i].email === email) {
-						checkEmail = false;
-						break;
-					}
-				}
+			console.log(data.rows + " hello");
+			if (data.rows[0]) {
+				checkEmail = false;
 			}
 			if (checkEmail) {
-				let newUser: { userId?: any, password?: any, userName?: any,  email?: any} = {
-					userId,
-					userName,
-					email,
-					password: hashedPassword,
-				};
-				data.push(newUser);
-				fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					//newUser = JSON.parse(newUser.splice(3, 1));
-					//const newUser2: { password?: string } = { password: password};
-					//delete newUser['newUser2'];
-					delete newUser.password;
-					resolve(JSON.stringify(newUser));
-				});
+				await pool.query("INSERT INTO users (user_name, email, password) VALUES ($1, $2, $3)", [userName, email, hashedPassword]);
+				const newUser = await pool.query("SELECT user_id, user_name, email FROM users WHERE email = $1", [email]);
+					resolve(JSON.stringify(newUser.rows));
 			} else {
 				resolve("emailNotAcceptable");
 			}
@@ -107,26 +82,17 @@ class User {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let userObject;
-				const data = await this.usersData();
 				const hashedPassword = crypto
 					.createHmac("sha256", key)
 					.update(password)
 					.digest("hex");
-				for (let i = 0; i < data.length; i++) {
-					if (email === data[i].email && hashedPassword === data[i].password) {
-						userObject = data[i];
-						break;
-					}
-				}
-				if (!userObject) {
+				const checkEmail = await pool.query("SELECT user_id FROM users WHERE email = $1", [email]);
+				const checkPassword = await pool.query("SELECT user_id FROM users WHERE password = $1", [hashedPassword]);
+				if (!checkEmail.rows[0] || !checkPassword.rows[0]) {
 					resolve(null);
 				} else {
-					delete userObject.password;
-					if (userObject.token && userObject.timeStamp) {
-						delete userObject.token;
-						delete userObject.timeStamp;
-					}
-					resolve(JSON.stringify(userObject));
+					userObject = await pool.query("SELECT user_id, user_name, email FROM users WHERE email = $1", [email]);
+					resolve(JSON.stringify(userObject.rows));
 				}
 			} catch (err) {
 				console.log(err);
