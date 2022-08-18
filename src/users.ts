@@ -9,17 +9,16 @@ import {pool} from "./db"
 const key = "abcdefgh";
 
 class User {
+	#pass: any
 	constructor() {
-		this.init();
-	}
-
-	async usersData() {
-		try {
-			const data = fs.readFileSync(path + "/users.json", "utf-8");
-			return JSON.parse(data);
-		} catch (err) {
-			console.log(err);
-		}
+		fs.readFile(".././.env", "utf-8", (err, data) => {
+			if (err) {
+				console.log(err);
+			}
+			//console.log(data)
+			this.#pass = data.split("=")[1];
+		})
+		console.log(this.#pass)
 	}
 
 	sendMail(reciever: string, token: string) {
@@ -28,7 +27,7 @@ class User {
 			port: 587,
 			auth: {
 				user: "serviceemail06@gmail.com",
-				pass: process.env.pass,
+				pass: this.#pass
 			},
 		});
 		transporter
@@ -45,15 +44,6 @@ class User {
 			.catch(console.error);
 	}
 
-	init() {
-		if (!fs.existsSync(path)) {
-			fs.mkdirSync(path);
-		}
-		if (!fs.existsSync(path + "/users.json")) {
-			fs.writeFileSync(path + "/users.json", JSON.stringify([]));
-		}
-	}
-
 	// Register User
 	register(userName: string, email: string, password: string) {
 		return new Promise(async (resolve, reject) => {
@@ -63,7 +53,6 @@ class User {
 				.update(password)
 				.digest("hex");
 			let checkEmail = true;
-			console.log(data.rows + " hello");
 			if (data.rows[0]) {
 				checkEmail = false;
 			}
@@ -81,17 +70,17 @@ class User {
 	login(email: string, password: string) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let userObject;
+				let existUser = true;
 				const hashedPassword = crypto
 					.createHmac("sha256", key)
 					.update(password)
 					.digest("hex");
-				const checkEmail = await pool.query("SELECT user_id FROM users WHERE email = $1", [email]);
+				const user = await pool.query("SELECT user_id FROM users WHERE email = $1 AND password = $2", [email, hashedPassword]);
 				const checkPassword = await pool.query("SELECT user_id FROM users WHERE password = $1", [hashedPassword]);
-				if (!checkEmail.rows[0] || !checkPassword.rows[0]) {
+				if (!user.rows[0]) {
 					resolve(null);
 				} else {
-					userObject = await pool.query("SELECT user_id, user_name, email FROM users WHERE email = $1", [email]);
+					const userObject = await pool.query("SELECT user_id, user_name, email FROM users WHERE email = $1 AND password = $2", [email, hashedPassword]);
 					resolve(JSON.stringify(userObject.rows));
 				}
 			} catch (err) {
@@ -105,40 +94,36 @@ class User {
 	changePassword(userId: string, oldPassword: string, newPassword: string, confirmPassword: string) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let targetUserIndex = -1;
-				const data = await this.usersData();
-				const hashedOldPassword = crypto
+				let userExist = true;
+				const user = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
+				if (!user.rows[0]) {
+					userExist = false;
+				}
+				if (userExist) {
+					const password = await pool.query("SELECT password FROM users WHERE user_id = $1", [userId])
+					const hashedOldPassword = crypto
 					.createHmac("sha256", key)
 					.update(oldPassword)
 					.digest("hex");
-				for (let i = 0; i < data.length; i++) {
-					if (
-						data[i].userId === parseInt(userId) &&
-						hashedOldPassword === data[i].password
-					) {
-						targetUserIndex = i;
-						break;
-					}
-				}
-				// Call validate password function
-				const passwordValidation = await this.validatePassword(
-					newPassword,
-					confirmPassword
-				);
-				if (!passwordValidation && targetUserIndex !== -1) {
-					const hashedNewPassword = crypto
-						.createHmac("sha256", key)
-						.update(newPassword)
-						.digest("hex");
-					const updatedPassword = hashedNewPassword;
-					data[targetUserIndex].password = updatedPassword;
-					fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
-						if (err) {
-							console.log(err);
+					// Call validate password function
+					if (password.rows[0].password === hashedOldPassword) {
+						const passwordValidation = await this.validatePassword(
+							newPassword,
+							confirmPassword
+						);
+						if (!passwordValidation) {
+							const newUpdatedHashedPassword = crypto
+							.createHmac("sha256", key)
+							.update(newPassword)
+							.digest("hex")
+							await pool.query("UPDATE users SET password = $1 WHERE user_id = $2", [newUpdatedHashedPassword, userId]);
+							resolve(null);
+						} else {
+							resolve(passwordValidation);
 						}
-						// File written
-					});
-					resolve(null);
+					} else {
+						resolve("Check password and try again");
+					}
 				} else {
 					resolve("Check password and try again");
 				}
@@ -173,34 +158,24 @@ class User {
 	// Forgot password
 	forgotPassword(userName: string, email: string) {
 		return new Promise(async (resolve, reject) => {
-			let targetUserIndex = -1;
-			const data = await this.usersData();
-			for (let i = 0; i < data.length; i++) {
-				if (data[i].userName === userName && data[i].email === email) {
-					targetUserIndex = i;
-				}
+			let existUser = true;
+			const user = await pool.query("SELECT user_id FROM users WHERE user_name = $1 AND email = $2", [userName, email]);
+			if (!user.rows[0]) {
+				existUser = false;
 			}
-			// If user exists then save token in user object and send this token in email
-			const rand = () => {
-				const rand = Math.random().toString(36).substr(2);
-				return rand + rand;
-			};
-			if (targetUserIndex === -1) {
+			if (existUser) {
+				// If user exists then save token in user object and send this token in email
+				const rand = () => {
+					const rand = Math.random().toString(36).substr(2);
+					return rand + rand;
+				};
+				const timeStamp = Math.floor(new Date().getTime()); // Get time in milliseconds
+				const token = rand();
+				this.sendMail(email, token);
+				await pool.query("UPDATE users SET token = $1, timestamp = $2 WHERE user_id = $3", [token, timeStamp, user.rows[0].user_id]);
 				resolve(null);
 			} else {
-				const timeStamp = Math.floor(new Date().getTime());
-				const token = rand();
-				data[targetUserIndex].token = token;
-				data[targetUserIndex].timeStamp = timeStamp;
-				this.sendMail(email, token);
-				fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// file written
-					resolve(null);
-				});
+				resolve(null);
 			}
 		});
 	}
@@ -208,51 +183,32 @@ class User {
 	// Function to set New password when forgetted
 	setNewPassword(email: string, token: string, password: string, confirmPassword: string) {
 		return new Promise(async (resolve, reject) => {
-			let targetUserIndex = -1;
-			let message;
 			const time = Math.floor(new Date().getTime()); // This will return time in milliseconds
 			let twoMinuteAgo = time - 120000;
 			const validatedPasswordError = await this.validatePassword(
 				password,
 				confirmPassword
 			);
-			if (!validatedPasswordError) {
-				const data = await this.usersData();
-				// Check that email and token is correct
-				for (let i = 0; i < data.length; i++) {
-					if (data[i].email === email && data[i].token === token) {
-						if (data[i].timeStamp >= twoMinuteAgo) {
-							targetUserIndex = i;
-							break;
-						} else {
-							message = "Token Expired";
-						}
-					}
-				}
-				if (targetUserIndex !== -1) {
+			const timeAtTokenCreated = await pool.query("SELECT timestamp FROM users WHERE email = $1 AND token = $2", [email, token]);
+			if (timeAtTokenCreated.rows[0]) {
+				if (!validatedPasswordError) {
 					const hashedPassword = crypto
 						.createHmac("sha256", key)
 						.update(password)
-						.digest("hex");
-					data[targetUserIndex].password = hashedPassword;
-					delete data[targetUserIndex].timeStamp;
-					delete data[targetUserIndex].token;
-					fs.writeFile(path + "/users.json", JSON.stringify(data), (err) => {
-						if (err) {
-							console.log(err);
-						}
-						// File written successfully
-					});
-					resolve(null);
-				} else {
-					if (message) {
-						resolve(message);
+						.digest("hex")
+					if (timeAtTokenCreated.rows[0].timestamp >= twoMinuteAgo) {
+						await pool.query("UPDATE users SET password = $1 WHERE email = $2 AND token = $3", [hashedPassword, email, token]);
+						await pool.query("UPDATE users SET timestamp = $1, token = $2 WHERE password = $3", [null, null, hashedPassword]);
+						resolve("Password Resetted Successfully");
 					} else {
-						resolve("Please write all fields correctly");
+						resolve("Token Expired");
+						await pool.query("UPDATE users SET timestamp = $1, token = $2 WHERE email = $3", [null, null, email]);
 					}
+				} else {
+					resolve(validatedPasswordError);
 				}
 			} else {
-				resolve(validatedPasswordError);
+				resolve("Please write all fields correctly");
 			}
 		});
 	}
@@ -261,3 +217,6 @@ class User {
 module.exports = {
 	User,
 };
+
+const hello = User;
+let hi = new hello();

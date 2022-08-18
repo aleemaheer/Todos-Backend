@@ -1,4 +1,5 @@
 const fs = require("fs");
+import { stat } from "fs";
 import { pool } from "./db";
 const path = require("path").join(__dirname, "data");
 export module Todo{
@@ -57,96 +58,55 @@ export class Todos {
 	getTodo(userId: number, todoId: number) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				// let targetTodo;
-				// const todosData = await this.readTodos();
-				// for (let i = 0; i < todosData.length; i++) {
-				// 	if (
-				// 		todosData[i].userId === userId &&
-				// 		parseInt(todosData[i].todoId) === todoId
-				// 	) {
-				// 		targetTodo = todosData[i];
-				// 	}
-				// }
-				const todo = await pool.query("SELECT title, description, is_completed FROM todos WHERE todo_id = $1 AND user_id = $2", [todoId, userId]);
-				/// ------ Another method to search -------/////////
-				// const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
-				resolve(JSON.stringify(todo.rows));
+				let userExist = true;
+				const user_id = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
+				if (!user_id.rows[0]) {
+					userExist = false;
+				}
+				if (userExist) {
+					const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE todo_id = $1 AND user_id = $2", [todoId, userId]);
+					resolve(JSON.stringify(todo.rows));
+				} else {
+					resolve(null);
+				}
 			} catch (err) {
 				console.log(err);
 				reject();
 			}
-		});
-	}
+	});
+}
 
-	// Delete todo
+	// // Delete todo
 	deleteTodo(userId: number, todoId: number) {
-		return new Promise(async (resolve, reject) => {
-			let targetTodo = -1;
-			const filteredTodos: Array<String> = [];
-			const todosData = await this.readTodos();
-			for (let i = 0; i < todosData.length; i++) {
-				if (
-					todosData[i].userId === userId &&
-					todosData[i].todoId === todoId
-				) {
-					targetTodo = i;
-					break;
-				}
-			}
-			if (targetTodo === -1) {
-				resolve(null);
-			} else {
-				todosData.splice(targetTodo, 1);
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// file writed
-					fs.readFile(path + "/todos.json", "utf-8", (err: string, data: any) => {
-						if (err) {
-							console.log(err);
-							reject();
-						}
-						data = JSON.parse(data);
-						for (let i = 0; i < data.length; i++) {
-							if (data[i].userId === userId) {
-								filteredTodos.push(data[i]);
-							}
-						}
-						resolve(JSON.stringify(filteredTodos));
-					});
-				});
-			}
+	return new Promise(async (resolve, reject) => {
+		let existUser = true;
+		const user_id = await pool.query("SELECT user_id FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+		if (!user_id.rows[0]) {
+			existUser = false;
+		}
+		if (existUser) {
+			await pool.query("DELETE FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+			resolve(JSON.stringify("Todo Deleted"));
+		} else {
+			resolve(JSON.stringify("Todo Not found"));
+		}
 		});
 	}
 
 	// Update status of todo, i.e., completed or not
 	updateTodoStatus(todoId: number, userId: number, status: string) {
 		return new Promise(async (resolve, reject) => {
-			const todosData = await this.readTodos();
-			let targetTodo;
-			for (let i = 0; i < todosData.length; i++) {
-				if (
-					todosData[i].todoId === todoId &&
-					todosData[i].userId === userId
-				) {
-					targetTodo = i;
-					break;
-				}
+			let existUser = true;
+			const user = await pool.query("SELECT user_id FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+			if (!user.rows[0]) {
+				existUser = false;
 			}
-			if (targetTodo || targetTodo === 0) {
-				todosData[targetTodo].isCompleted = status;
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// File written successfully
-				});
-				resolve(todosData[targetTodo]);
+			if (existUser) {
+				await pool.query("UPDATE todos SET is_completed = $1 WHERE todo_id = $2 AND user_id = $3", [status, todoId, userId]);
+				const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+				resolve(todo.rows);
 			} else {
-				resolve(null);
+				resolve("Please enter correct user id and todo id.");
 			}
 		});
 	}
@@ -154,31 +114,17 @@ export class Todos {
 	// Update todo
 	updateTodo(todoId: number, userId: number, title: string, description: string) {
 		return new Promise(async (resolve, reject) => {
-			let targetTodo;
-			const todosData = await this.readTodos();
-			for (let i = 0; i < todosData.length; i++) {
-				if (
-					todosData[i].userId === userId &&
-					todosData[i].todoId === todoId
-				) {
-					targetTodo = i;
-					break;
-				}
+			let existUser = true;
+			const user = await pool.query("SELECT user_id FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+			if (!user.rows[0]) {
+				existUser = false;
 			}
-			// Update todo
-			if (!targetTodo && targetTodo !== 0) {
-				resolve(null);
+			if (existUser) {
+				await pool.query("UPDATE todos SET title = $1, description = $2 WHERE user_id = $3 AND todo_id = $4", [title, description, userId, todoId]);
+				const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE user_id = $1", [userId]);
+				resolve(JSON.stringify(todo.rows));
 			} else {
-				todosData[targetTodo].title = title;
-				todosData[targetTodo].description = description;
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// File written
-				});
-				resolve(JSON.stringify(todosData[targetTodo]));
+				resolve(null);
 			}
 		});
 	}
@@ -192,8 +138,8 @@ export class Todos {
 				existUser = false;
 			}
 			if (existUser) {
-				const newTodo = await pool.query("INSERT INTO todos (user_id, title, description, is_completed) VALUES ($1, $2, $3, $4)", [userId, todoTitle, todoDescription, false]);
-				const todo = await pool.query("SELECT title, description, is_completed FROM todos WHERE todo_id = $1", [newTodo.rows[0].todo_id]);
+				const newTodo = await pool.query("INSERT INTO todos (user_id, title, description, is_completed) VALUES ($1, $2, $3, $4) RETURNING *", [userId, todoTitle, todoDescription, false]);
+				const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE todo_id = $1", [newTodo.rows[0].todo_id]);
 				resolve(todo.rows);
 			} else {
 				resolve(null);
@@ -204,8 +150,17 @@ export class Todos {
 	// Get Todos with user id
 	getTodos(userId: number) {
 		return new Promise(async (resolve) => {
-			const todos = await pool.query("SELECT title, description, is_completed FROM todos WHERE user_id = $1;", [userId]);
-			resolve(JSON.stringify(todos.rows));
+			let existUser = true;
+			const user_id = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
+			if (!user_id.rows[0]) {
+				existUser = false;
+			}
+			if (existUser) {
+				const todos = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE user_id = $1;", [userId]);
+				resolve(JSON.stringify(todos.rows));
+			} else {
+				resolve(null);
+			}
 			// const todosData = await this.readTodos();
 			// const usersData = await this.readUsers();
 			// let filteredTodos: Array<String> = [];

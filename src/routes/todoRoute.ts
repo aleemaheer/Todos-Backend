@@ -127,7 +127,7 @@ function handleUpdateTodoStatus(req: any, res: any, todoId: number) {
 			body = JSON.parse(body);
 			const userId = parseInt(req.headers.user_id);
 			const isCompleted: string = body.isCompleted;
-			const response = await todo.updateTodoStatus(
+			const response: any = await todo.updateTodoStatus(
 				todoId,
 				userId,
 				isCompleted,
