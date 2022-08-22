@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="style.css" />
+		<title>Registration</title>
+	</head>
+	<body>
+		<h1>Registration</h1>
+			Enter your name <input type="text" id="userName" required/><br />
+			Enter your email <input type="email" id="email" required/><br />
+			Enter your password <input type="password" id="password" required/><br />
+			Confirm your password <input type="password" id="confirmPassword" required/><br />
+            <input type="submit" value="Register" id="registerBtn">
+	</body>
+    <script>
+        const userName = document.querySelector("#userName");
+        const email = document.querySelector("#email");
+        const password = document.querySelector("#password");
+        const confirmPassword = document.querySelector("#confirmPassword");
+        const registerBtn = document.querySelector("#registerBtn");
+        
+        // Function to register
+        registerBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            await register();
+        });
+        async function register() {
+            //e.preventDefault();
+            const url = "http://localhost:3000/register";
+            const json_request = {};
+            json_request.userName = userName.value;
+            json_request.email = email.value;
+            json_request.password = password.value;
+            json_request.confirm_password = confirmPassword.value;
+            const result = await fetch(url, {
+                method: "POST",
+                headers: { "content-type": "application/json"},
+                body: JSON.stringify(json_request)
+            })
+            const response = await result.json();
+            if (typeof response === "string") {
+                alert(response);
+            } else {
+                alert("Successfully Registered");
+                emptyFields();
+            }
+        }
+
+        // Make input fields empty
+        function emptyFields() {
+            userName.value = "";
+            email.value = "";
+            password.value = "";
+            confirmPassword.value = "";
+        }
+    </script>
+</html>
