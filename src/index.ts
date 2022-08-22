@@ -1,7 +1,9 @@
-//const http = require("http");
-import * as http from 'http';
-const handleTodosRoutes = require("./routes/todoRoute");
-const handleUserRoutes = require("./routes/userRoute");
+import * as http from "http";
+import fs from "fs";
+import path from "path";
+const handleTodosRoutes = require(path.resolve(__dirname, "routes/todoRoute"));
+const handleUserRoutes = require(path.resolve(__dirname, "routes/userRoute"));
+const handleStaticRoutes = require(path.resolve(__dirname, "routes/staticRoute"));
 
 const server = http.createServer((req, res) => {
 	const headers: any = {
@@ -23,12 +25,13 @@ const server = http.createServer((req, res) => {
 		req.url === "/login" ||
 		req.url === "/forgot"
 	) {
-		handleUserRoutes.handleUserRoutes(req, res); 
+		handleUserRoutes.handleUserRoutes(req, res);
 	} else if (req.url === "/todos") {
 		// Handle todos routes
 		handleTodosRoutes.handleTodosRoutes(req, res);
-	}
-	else {
+	} else if (req.url === "/") {
+		handleStaticRoutes.handleStaticRoutes(req, res);
+	} else {
 		handleMatchingUrls(req, res);
 		// res.writeHead(502, { "Content-Type": "application/json" });
 		// res.end(JSON.stringify("Route not found"));
@@ -49,12 +52,11 @@ function handleCors(req: any, res: any) {
 
 function handleMatchingUrls(req: any, res: any) {
 	if (req.url.match(/\/account\/([0-9]+)/)) {
-		handleUserRoutes.handleUserRoutes(req, res); 
-	} else if(req.url.match(/\/todos\/([0-9]+)/)) {
-		handleTodosRoutes.handleTodosRoutes(req, res); 
+		handleUserRoutes.handleUserRoutes(req, res);
+	} else if (req.url.match(/\/todos\/([0-9]+)/)) {
+		handleTodosRoutes.handleTodosRoutes(req, res);
 	} else {
-		res.writeHead(503, {"Content-Type": "application/json"});
-		res.end(JSON.stringify("Route Not Found"));
+		handleStaticRoutes.handleStaticRoutes(req, res);
 	}
 }
 

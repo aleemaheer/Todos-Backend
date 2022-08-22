@@ -18,7 +18,6 @@ class User {
 			//console.log(data)
 			this.#pass = data.split("=")[1];
 		})
-		console.log(this.#pass)
 	}
 
 	sendMail(reciever: string, token: string) {

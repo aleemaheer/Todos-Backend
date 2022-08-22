@@ -1,38 +1,8 @@
 const fs = require("fs");
-import { stat } from "fs";
 import { pool } from "./db";
 const path = require("path").join(__dirname, "data");
 export module Todo{
 export class Todos {
-	constructor() {
-		this.init();
-	}
-
-
-
-	init() {
-		try {
-			if (!fs.existsSync(path)) {
-				fs.mkdirSync(path);
-			}
-			if (!fs.existsSync(path + "/todos.json")) {
-				fs.writeFile(path + "/todos.json", JSON.stringify([]), (err: string) => {
-					if (err) {
-						console.log(err);
-					}
-					// File written successfully
-				});
-				fs.writeFile(path + "/users.json", JSON.stringify([]), (err: string) => {
-					if (err) {
-						console.log(err);
-					}
-					// File written successfully
-				});
-			}
-		} catch (err) {
-			console.log(err);
-		}
-	}
 
 	// Function to read todos
 	async readTodos() {
@@ -133,6 +103,9 @@ export class Todos {
 	createTodo(userId: number, todoTitle: string, todoDescription: string) {
 		return new Promise(async (resolve, reject) => {
 			let existUser = true;
+			if (!todoTitle || !todoDescription) {
+				resolve("Empty Todo can't be created");
+			} else {
 			const user_id = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
 			if (!user_id.rows[0]) {
 				existUser = false;
@@ -144,6 +117,7 @@ export class Todos {
 			} else {
 				resolve(null);
 			}
+		}
 		});
 	}
 
