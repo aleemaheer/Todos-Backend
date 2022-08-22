@@ -4,7 +4,7 @@ content-type: application/json
 
 {
 	"userName": "aleem",
-	"email": "aleemaheer5769644@gmail.com",
+	"email": "aleem@todos.com",
 	"password": "12345678!",
 	"confirm_password": "12345678!"
 }
@@ -50,16 +50,16 @@ content-type: application/json
 ### POST REQUEST TO CREATE TODO
 POST http://localhost:3000/todos HTTP/1.1
 content-type: application/json
-user_id: 20
+user_id: 30
 
 {
-	"title": "I am good",
-	"description": "This todo is for testing purpose"
+	"title": "",
+	"description": "Wash dishes before the guests came"
 }
 
 ### GET All TODOS
 GET http://localhost:3000/todos HTTP/1.1
-user_id: 20
+user_id: 30
 
 ### GET SINGLE TODO
 GET http://localhost:3000/todos/27 HTTP/1.1
@@ -75,8 +75,8 @@ user_id: 20
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/26 HTTP/1.1
-user_id: 20
+DELETE http://localhost:3000/todos/30 HTTP/1.1
+user_id: 30
 
 ### PUT REQUEST TO UPDATE TODO
 PUT http://localhost:3000/todos/27 HTTP/1.1
