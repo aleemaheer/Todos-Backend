@@ -14,6 +14,7 @@
 			Enter your password <input type="password" id="password" required/><br />
 			Confirm your password <input type="password" id="confirmPassword" required/><br />
             <input type="submit" value="Register" id="registerBtn">
+            <button id="forgetPassword">Forget Password</button>
 	</body>
     <script>
         const userName = document.querySelector("#userName");
@@ -21,12 +22,19 @@
         const password = document.querySelector("#password");
         const confirmPassword = document.querySelector("#confirmPassword");
         const registerBtn = document.querySelector("#registerBtn");
+        const forgotBtn = document.querySelector("#forgetPassword");
         
         // Function to register
         registerBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             await register();
         });
+
+        // Function to handle forgot password
+        forgotBtn.addEventListener("click", async () => {
+            window.location = "/forgotPassword/forgetPassword.html";
+        })
+
         async function register() {
             //e.preventDefault();
             const url = "http://localhost:3000/register";
@@ -46,6 +54,7 @@
             } else {
                 alert("Successfully Registered");
                 emptyFields();
+                window.location = `/dashboard/dashboard.html/id=${response[0].user_id}`;
             }
         }
 

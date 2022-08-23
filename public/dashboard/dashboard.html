@@ -4,14 +4,19 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="style.css" />
 		<title>My Todos</title>
 	</head>
 	<body>
 		<h1>DashBoard</h1>
 		<h3>Your Todos</h3>
-		<button id="createTodo">Create Todo</button><br />
+		<button id="createTodo">Create Todo</button>
+		<button id="changePassword">Change Password</button> <br />
 		<input type="text" id="todoTitle" placeholder="Enter todo tile" /><br />
-		<input type="text" id="todoDescription" placeholder="Enter todo description"
+		<input
+			type="text"
+			id="todoDescription"
+			placeholder="Enter todo description"
 		/><br />
 		<select id="todoStatus">
 			<option value="none">Select</option>
@@ -21,89 +26,5 @@
 		<input type="submit" id="submitCreateTodo" />
 		<ol id="ol"></ol>
 	</body>
-	<script>
-		const userId = window.location.href.split("=")[1];
-		const todoTitle = document.querySelector("#todoTitle");
-		const todoDescription = document.querySelector("#todoDescription");
-		const todoStatus = document.querySelector("#todoStatus");
-		const createTodoBtn = document.querySelector("#createTodo");
-		const submitCreateTodoBtn = document.querySelector("#submitCreateTodo");
-
-		async function readTodos() {
-			try {
-                submitCreateTodoBtn.style.display = "none";
-		        todoTitle.style.display = "none";
-		        todoDescription.style.display = "none";
-		        todoStatus.style.display = "none";
-
-				const ol_todo = document.querySelector("#ol");
-				while (ol_todo.firstChild) ol_todo.removeChild(ol_todo.firstChild);
-
-				const result = await fetch("http://localhost:3000/todos", {
-					method: "GET",
-					headers: {
-						user_id: userId,
-					},
-				});
-				const todos = await result.json();
-				todos.forEach((t) => {
-					const li = document.createElement("li");
-					li.innerHTML = `<h3>Title:</h3> ${t.title} <h4>Description:</h4> ${t.description} <h4>isCompleted:</h4> ${t.is_completed}`;
-					li.id = t.todo_id;
-					//console.log(li.id);
-					// Delete todo with onclick
-					li.addEventListener("click", async (e) => {
-						const json_request = {};
-						console.log(typeof e.target.id);
-						const result = await fetch(
-							`http://localhost:3000/todos/${e.target.id})`,
-							{
-								method: "DELETE",
-								headers: {
-									"content-type": "application/json",
-									user_id: userId,
-								},
-							}
-						);
-						const success = await result.json();
-						readTodos();
-						alert("Deleted");
-					});
-					ol_todo.appendChild(li);
-				});
-			} catch (e) {
-				console.log(e);
-			}
-		}
-		readTodos();
-
-		// Function to create new Todo
-		createTodoBtn.addEventListener("click", async () => {
-			todoTitle.style.display = "block";
-			todoDescription.style.display = "block";
-			submitCreateTodoBtn.style.display = "block";
-
-			submitCreateTodoBtn.addEventListener("click", async () => {
-                const json_request = {};
-			    json_request.title = todoTitle.value;
-			    json_request.description = todoDescription.value;
-				const result = await fetch("http://localhost:3000/todos", {
-					method: "POST",
-					headers: { 
-                        "user_id": userId,
-                        "content-type": "application/json" },
-					body: JSON.stringify(json_request),
-				});
-                const response = await result;
-                console.log(typeof response);
-                if (typeof response === "string") {
-                    alert(response);
-                    console.log(response);
-                } else {
-                    alert("Todo Created");
-                }
-                readTodos();
-			});
-		});
-	</script>
+	<script src="main.js"></script>
 </html>
