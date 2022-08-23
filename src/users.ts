@@ -3,15 +3,16 @@ import * as nodemailer from 'nodemailer';
 import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 dotenv.config();
-const path = require("path").join(__dirname, "/data");
+import path from "path";
+//const path = require("path").join(__dirname, "/data");
 //const pool = require("./db");
 import {pool} from "./db"
 const key = "abcdefgh";
 
 class User {
 	#pass: any
-	constructor() {
-		fs.readFile(".././.env", "utf-8", (err, data) => {
+	constructor() { // .././.env
+		fs.readFile(path.resolve(__dirname, ".././.env"), "utf-8", (err, data) => {
 			if (err) {
 				console.log(err);
 			}
