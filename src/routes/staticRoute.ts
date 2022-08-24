@@ -1,30 +1,116 @@
 import fs from "fs";
 import path from "path";
 
+function handleStaticRoutes(req: any, res: any) {
+	if (req.method === "GET") {
+		renderStaticPages(req, res);
+	}
+}
+
+// Function to render or serve html pages
+function renderStaticPages(req: any, res: any) {
+	const url = req.url;
+	let urlParts = req.url.split(".");
+	if (req.url === "/") {
+		fs.readFile(
+			path.resolve(__dirname, `../../public/index.html`),
+			"utf-8",
+			(err, data) => {
+				if (err) {
+					console.log(err);
+					res.writeHead(404, { "Content-Type": "application/json" });
+					res.end();
+				}
+				res.writeHead(200, { "Content-Type": "text/html" });
+				res.end(data);
+			}
+		);
+	} else if (urlParts[1] === "js" || urlParts[1] === "html") {
+		fs.readFile(
+			path.resolve(__dirname, `../../public${url}`),
+			"utf-8",
+			(err, data) => {
+				if (err) {
+					console.log(err);
+					res.writeHead(404, { "Content-Type": "application/json" });
+					res.end();
+				}
+				res.writeHead(200, { "Content-Type": "text/html" });
+				res.write(data);
+				res.end();
+			}
+		);
+	} else if (urlParts[1] === "css") {
+		fs.readFile(
+			path.resolve(__dirname, `../../public${url}`),
+			"utf-8",
+			(err, data) => {
+				if (err) {
+					console.log(err);
+					res.writeHead(404, { "Content-Type": "application/json" });
+					res.end();
+				}
+				res.writeHead(200, { "Content-Type": "text/css" });
+				res.write(data);
+				res.end();
+			}
+		);
+	} else {
+		urlParts = req.url.split("/id");
+		fs.readFile(
+			path.resolve(__dirname, `../../public${urlParts[0]}`),
+			"utf-8",
+			(err, data) => {
+				if (err) {
+					console.log(err);
+					res.writeHead(404, { "Content-Type": "application/json" });
+					res.end();
+				}
+				res.writeHead(200, { "Content-Type": "text/html" });
+				res.write(data);
+				res.end();
+			}
+		);
+	}
+}
+
+module.exports = {
+	handleStaticRoutes,
+};
+
 // Handle static routes
+/*
 function handleStaticRoutes(req: any, res: any) {
 	if (req.url === "/" && req.method === "GET") {
 		handleStartPage(req, res);
+		console.log(req.url);
 	} else if (req.url === "/main.js") {
 		handleJavaScriptFile(req, res);
+		console.log(req.url);
 	} else if (req.url === "/style.css" && req.method === "GET") {
 		handleCssFile(req, res);
+		console.log(req.url);
 	} else if (req.url === "/login.html" && req.method === "GET") {
 		handleLoginPage(req, res);
+		console.log(req.url);
 	} else if (req.url === "/register.html" && req.method === "GET") {
 		handleRegisterPage(req, res);
+		console.log(req.url);
 	} else if (
 		req.url.match(/\/dashboard\/dashboard.html\/id=([0-9]+)/) &&
 		req.method === "GET"
 	) {
 		handleDashboard(req, res);
+		console.log(req.url);
 	} else if (
 		req.url === "/dashboard/dashboard.html/style.css" &&
 		req.method === "GET"
 	) {
 		handleDashboardCss(req, res);
+		console.log(req.url);
 	} else if (req.url === "/dashboard/dashboard.html/main.js" && req.method === "GET") {
         handleDashboardJS(req, res);
+		console.log(req.url);
     } else if (req.url.match(/\/dashboard\/changePassword.html\/id=([0-9]+)/) && req.method === "GET") {
         handleChangePassword(req, res);
     } else if (req.url === "/forgotPassword/forgetPassword.html" && req.method === "GET") {
@@ -231,3 +317,4 @@ function handleSetPassword(req: any, res: any) {
 module.exports = {
 	handleStaticRoutes,
 };
+*/

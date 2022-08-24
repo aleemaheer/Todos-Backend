@@ -4,9 +4,7 @@ import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import path from "path";
-//const path = require("path").join(__dirname, "/data");
-//const pool = require("./db");
-import {pool} from "./db"
+import {pool} from "./db";
 const key = "abcdefgh";
 
 class User {
