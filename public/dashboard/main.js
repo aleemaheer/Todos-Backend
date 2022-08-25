@@ -1,25 +1,56 @@
 const userId = window.location.href.split("=")[1];
 const todoTitle = document.querySelector("#todoTitle");
 const todoDescription = document.querySelector("#todoDescription");
-const todoStatus = document.querySelector("#todoStatus");
 const createTodoBtn = document.querySelector("#createTodo");
 const submitCreateTodoBtn = document.querySelector("#submitCreateTodo");
+const cancelBtn = document.querySelector("#cancel");
+const todoTitleLabel = document.querySelector("#todoTitleLabel");
+const todoDescriptionLabel = document.querySelector("#todoDescriptionLabel");
 const todoClass = document.querySelector(".todo");
 const tbody = document.querySelector("#tbody");
 const changePassword = document.querySelector("#changePassword");
+const backBtn = document.querySelector("#back");
+const logOutBtn = document.querySelector("#logOut");
+const h2 = document.querySelector("h3");
+
+// Get the user name from local storage and display
+const userName = localStorage.getItem("userName");
+h2.innerHTML = `Welcome ${userName}`;
+
+// Function to cancel from creating todo
+cancelBtn.addEventListener("click", (e) => {
+	e.preventDefault();
+	submitCreateTodoBtn.style.display = "none";
+	todoTitle.style.display = "none";
+	todoDescription.style.display = "none";
+	todoTitleLabel.style.display = "none";
+	todoDescriptionLabel.style.display = "none";
+	cancelBtn.style.display = "none";
+});
+
+// Function to logout
+logOutBtn.addEventListener("click", (e) => {
+	e.preventDefault();
+	localStorage.clear();
+	window.location = "/";
+});
+
+// Function to go back
+backBtn.addEventListener("click", (e) => {
+	e.preventDefault();
+	window.location = "/login.html";
+});
 
 async function readTodos() {
 	try {
 		submitCreateTodoBtn.style.display = "none";
 		todoTitle.style.display = "none";
 		todoDescription.style.display = "none";
-		todoStatus.style.display = "none";
-
-		const ol_todo = document.querySelector("#ol");
-		while (ol_todo.firstChild) ol_todo.removeChild(ol_todo.firstChild);
+		todoTitleLabel.style.display = "none";
+		todoDescriptionLabel.style.display = "none";
+		cancelBtn.style.display = "none";
 
 		const tr = document.querySelector("#tr");
-		while (tbody.node) tr.removeChild(tbody.node);
 
 		const result = await fetch("http://localhost:3000/todos", {
 			method: "GET",
@@ -29,33 +60,53 @@ async function readTodos() {
 		});
 		const todos = await result.json();
 		todos.forEach((t) => {
-			const tdOfEdit = document.querySelector("#editBtn");
-			const tdOfDelete = document.querySelector("#deleteBtn");
-			const tdOfStatus = document.querySelector("#editStatusBtn");
-			const tdOfTitle = document.querySelector("#title");
-			const tdOfDescription = document.querySelector("#description");
-			const wTdOfStatus = document.querySelector("#status");
+			// Create elements
 			const editButton = document.createElement("button");
 			const deleteButton = document.createElement("button");
 			const editStatusButton = document.createElement("button");
 			const tr = document.createElement("tr");
+			const title = document.createElement("th");
+			const description = document.createElement("td");
+			const status = document.createElement("td");
+			const tdOfEdit = document.createElement("td");
+			const tdOfDelete = document.createElement("td");
+			const tdOfStatus = document.createElement("td");
 			//tr.innerHTML = `<th>${t.title}</th><td>${t.description}</td><td>${t.is_completed}</td><td><button>Edit ✍️</button></td><td><button>Delete ❌</button></td><td><button>Edit Status ✅</button></td>`;
 			editButton.innerText = "Edit ✍️";
 			deleteButton.innerText = "Delete ❌";
 			editStatusButton.innerText = "Edit Status ✅";
 
-			editButton.id = t.todo_id;
-			deleteButton.id = t.todo_id;
-			editStatusButton.status = t.is_completed;
-			editStatusButton.id = t.todo_id;
+			// Append title, description, status
+			title.innerText = t.title;
+			description.innerText = t.description;
+			if (t.is_completed === true) {
+				status.innerText = "Completed";
+			} else {
+				status.innerText = "Incompleted";
+			}
+			//status.innerText = status;
 
-			// Append in table
+			editButton.id = t.todo_id;
+			editButton.title = t.title;
+			editButton.description = t.description;
+			deleteButton.id = t.todo_id;
+			editStatusButton.id = t.todo_id;
+			editStatusButton.status = t.is_completed;
+
+			// Append buttons in td
 			tdOfEdit.appendChild(editButton);
 			tdOfDelete.appendChild(deleteButton);
 			tdOfStatus.appendChild(editStatusButton);
-			tdOfTitle.innerText = t.title;
-			tdOfDescription.innerText = t.description;
-			wTdOfStatus.innerText = t.is_completed;
+			// Append title, description, status in th, td, td
+			tr.appendChild(title);
+			tr.appendChild(description);
+			tr.appendChild(status);
+			// Append buttons in html
+			tr.appendChild(tdOfEdit);
+			tr.appendChild(tdOfDelete);
+			tr.appendChild(tdOfStatus);
+			// Append tr in body
+			tbody.appendChild(tr);
 
 			editButton.addEventListener("click", (e) => {
 				window.location = `/dashboard/edit.html/id=${e.target.id}+${userId}`;
@@ -69,7 +120,6 @@ async function readTodos() {
 				}
 				const json_request = {};
 				json_request.isCompleted = status;
-				console.log(json_request);
 				const result = await fetch(
 					`http://localhost:3000/todos/${e.target.id}`,
 					{
@@ -82,7 +132,6 @@ async function readTodos() {
 					}
 				);
 				const response = await result.json();
-				console.log(response);
 				window.location = window.location.href;
 			});
 			// Delete todo with onclick
@@ -99,7 +148,6 @@ async function readTodos() {
 				);
 				const success = await result.json();
 				readTodos();
-				alert("Deleted");
 				window.location = window.location.href;
 			});
 		});
@@ -118,6 +166,9 @@ async function createTodo() {
 	todoTitle.style.display = "block";
 	todoDescription.style.display = "block";
 	submitCreateTodoBtn.style.display = "block";
+	todoTitleLabel.style.display = "block";
+	todoDescriptionLabel.style.display = "block";
+	cancelBtn.style.display = "block";
 
 	submitCreateTodoBtn.addEventListener("click", async () => {
 		const json_request = {};
@@ -138,10 +189,10 @@ async function createTodo() {
 			alert("Empty Todo can't be created");
 			console.log(response);
 		} else {
-			alert("Todo Created");
 			console.log(result);
 		}
-		readTodos();
+		//readTodos();
+		window.location = window.location.href;
 	});
 }
 

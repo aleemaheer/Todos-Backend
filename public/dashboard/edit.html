@@ -1,55 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Edit Todo</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Edit Todo</h1>
-        <form>
-            <div class="form-group">
-              <label for="formGroupExampleInput">Enter title</label>
-              <input type="text" class="form-control" id="title" placeholder="Title">
-            </div>
-            <div class="form-group">
-              <label for="formGroupExampleInput2">Enter description</label>
-              <input type="text" class="form-control" id="description" placeholder="Description">
-            </div>
-            <div class="form-group">
-                <button class="btn btn-light">Edit</button>
-            </div>
-          </form>
-    </div>
-    <script>
-        const ids = window.location.href.split("=")[1];
-        const userId = ids.split("+")[1];
-        const todoId = ids.split("+")[0];
-        console.log(userId + todoId)
-        const title = document.querySelector("#title");
-        const description = document.querySelector("#description");
-        const button = document.querySelector("button");
-        button.addEventListener("click", async (e) => {
-            e.preventDefault();
-            const json_request = {};
-            json_request.title = title.value;
-            json_request.description = description.value;
-            const result = await fetch(`http://localhost:3000/todos/${todoId}`, {
-                method: "PUT",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "user_id": userId
-                },
-                body: JSON.stringify(json_request)
-            })
-            const response = await result.json();
-            alert("Todo Updated");
-            window.location = `/dashboard/dashboard.html/id=${userId}`;
-        })
-    </script>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="../style.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+			integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+			crossorigin="anonymous"
+		/>
+		<title>Edit Todo</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Edit Todo</h1>
+			<form>
+				<div class="form-group">
+					<label for="formGroupExampleInput">Enter title</label>
+					<input
+						type="text"
+						class="form-control"
+						id="title"
+						placeholder="Title"
+					/>
+				</div>
+				<div class="form-group">
+					<label for="formGroupExampleInput2">Enter description</label>
+					<input
+						type="text"
+						class="form-control"
+						id="description"
+						placeholder="Description"
+					/>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-light" id="back">Cancel</button>
+					<button class="btn btn-light" id="button">Update</button>
+				</div>
+			</form>
+		</div>
+		<script>
+			let todoTitle;
+			let todoDescription;
+			async function getData(userId, todoId) {
+				const result = await fetch(`http://localhost:3000/todos/${todoId}`, {
+					method: "GET",
+					headers: {
+						"content-type": "application/json",
+						user_id: userId,
+					},
+				});
+				const response = await result.json();
+				//console.log(response[0].description);
+				todoTitle = response[0].title;
+				todoDescription = response[0].description;
+                setDefaultValues(todoTitle, todoDescription);
+			}
+
+			const url = window.location.href.split("=")[1];
+			const userId = url.split("+")[1];
+			const todoId = url.split("+")[0];
+			getData(userId, todoId);
+
+			const title = document.querySelector("#title");
+			const description = document.querySelector("#description");
+			const button = document.querySelector("#button");
+			const backBtn = document.querySelector("#back");
+
+			// Set default value of title and description
+			async function setDefaultValues(todoTitle, todoDescription) {
+				title.defaultValue = todoTitle;
+				description.defaultValue = todoDescription;
+			}
+
+			// Function to cancel
+			backBtn.addEventListener("click", (e) => {
+				e.preventDefault();
+				window.location = `/dashboard/dashboard.html/id=${userId}`;
+			});
+
+			button.addEventListener("click", async (e) => {
+				e.preventDefault();
+				if (!title.value || !description.value) {
+					alert("Pleae check the fields");
+				} else {
+					const json_request = {};
+					json_request.title = title.value;
+					json_request.description = description.value;
+					console.log(json_request);
+					const result = await fetch(`http://localhost:3000/todos/${todoId}`, {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+							user_id: userId,
+						},
+						body: JSON.stringify(json_request),
+					});
+					const response = await result.json();
+					window.location = `/dashboard/dashboard.html/id=${userId}`;
+				}
+			});
+		</script>
+	</body>
 </html>

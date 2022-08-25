@@ -44,7 +44,7 @@ content-type: application/json
 
 {
 	"email": "aleemaheer5769644@gmail.com",
-	"password": "hello@@@@"
+	"password": "1234567!"
 }
 
 ### POST REQUEST TO CREATE TODO
@@ -62,8 +62,8 @@ GET http://localhost:3000/todos HTTP/1.1
 user_id: 30
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/27 HTTP/1.1
-user_id: 20
+GET http://localhost:3000/todos/246 HTTP/1.1
+user_id: 41
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
 PATCH http://localhost:3000/todos/27 HTTP/1.1
