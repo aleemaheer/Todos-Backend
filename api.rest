@@ -4,19 +4,19 @@ content-type: application/json
 
 {
 	"userName": "aleem",
-	"email": "aleemaheer5769644@gmail.com",
+	"email": "aleem@todos.com",
 	"password": "12345678!",
 	"confirm_password": "12345678!"
 }
 
 ### Change password API
-PUT http://localhost:3000/account/2
+PUT http://localhost:3000/account/20
 content-type: application/json
 
 {
-	"oldPassword": "12345678!",
-	"newPassword": "hello####",
-	"confirmPassword": "hello####"
+	"oldPassword": "hello@@@@",
+	"newPassword": "hello@@@@",
+	"confirmPassword": "hello@@@@"
 }
 
 ### Forget password API 1
@@ -34,9 +34,9 @@ content-type: application/json
 
 {
 	"email": "aleemaheer5769644@gmail.com",
-	"token": "4p3vuv06i5p4p3vuv06i5p",
-	"password": "hello@@@@",
-	"confirmPassword": "hello@@@@"
+	"token": "a7ln94onuyma7ln94onuym",
+	"password": "hello####",
+	"confirmPassword": "hello####"
 }
 ### Login
 POST http://localhost:3000/login HTTP/1.1
@@ -50,41 +50,41 @@ content-type: application/json
 ### POST REQUEST TO CREATE TODO
 POST http://localhost:3000/todos HTTP/1.1
 content-type: application/json
-user_id: 2
+user_id: 30
 
 {
-	"title": "Wash clothes",
-	"description": "This is todos"
+	"title": "",
+	"description": "Wash dishes before the guests came"
 }
 
 ### GET All TODOS
 GET http://localhost:3000/todos HTTP/1.1
-user_id: 2
+user_id: 30
 
 ### GET SINGLE TODO
-GET http://localhost:3000/todos/2 HTTP/1.1
-user_id: 1
+GET http://localhost:3000/todos/27 HTTP/1.1
+user_id: 20
 
 ### PATCH REQUEST TO UPDATE STATUS OF TODO
-PATCH http://localhost:3000/todos/2 HTTP/1.1
+PATCH http://localhost:3000/todos/27 HTTP/1.1
 content-type: application/json
-user_id: 1
+user_id: 20
 
 {
 	"isCompleted" : true
 }
 
 ### DELETE REQUEST
-DELETE http://localhost:3000/todos/2 HTTP/1.1
-user_id: 1
+DELETE http://localhost:3000/todos/30 HTTP/1.1
+user_id: 30
 
 ### PUT REQUEST TO UPDATE TODO
-PUT http://localhost:3000/todos/1 HTTP/1.1
+PUT http://localhost:3000/todos/27 HTTP/1.1
 content-type: application/json
-user_id: 1
+user_id: 20
 
 {
-	"title": "Clean clothes",
-	"description": "Clean all the dishes before the guests came",
-	"isCompleted": true
+	"title": "Wash clothes",
+	"description": "Wash all the dishes before the guests came",
+	"isCompleted": false
 }

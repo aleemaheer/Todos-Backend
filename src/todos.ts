@@ -1,35 +1,8 @@
 const fs = require("fs");
+import { pool } from "./db";
 const path = require("path").join(__dirname, "data");
-// const path = __dirname + "/data";
 export module Todo{
 export class Todos {
-	constructor() {
-		this.init();
-	}
-
-	init() {
-		try {
-			if (!fs.existsSync(path)) {
-				fs.mkdirSync(path);
-			}
-			if (!fs.existsSync(path + "/todos.json")) {
-				fs.writeFile(path + "/todos.json", JSON.stringify([]), (err: string) => {
-					if (err) {
-						console.log(err);
-					}
-					// File written successfully
-				});
-				fs.writeFile(path + "/users.json", JSON.stringify([]), (err: string) => {
-					if (err) {
-						console.log(err);
-					}
-					// File written successfully
-				});
-			}
-		} catch (err) {
-			console.log(err);
-		}
-	}
 
 	// Function to read todos
 	async readTodos() {
@@ -55,95 +28,55 @@ export class Todos {
 	getTodo(userId: number, todoId: number) {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let targetTodo;
-				const todosData = await this.readTodos();
-				for (let i = 0; i < todosData.length; i++) {
-					if (
-						todosData[i].userId === userId &&
-						parseInt(todosData[i].todoId) === todoId
-					) {
-						targetTodo = todosData[i];
-					}
+				let userExist = true;
+				const user_id = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
+				if (!user_id.rows[0]) {
+					userExist = false;
 				}
-				/// ------ Another method to search -------/////////
-				// const targetTodo = data.find((item) => item.todoId === parseInt(this.id));
-				resolve(JSON.stringify(targetTodo));
+				if (userExist) {
+					const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE todo_id = $1 AND user_id = $2", [todoId, userId]);
+					resolve(JSON.stringify(todo.rows));
+				} else {
+					resolve(null);
+				}
 			} catch (err) {
 				console.log(err);
 				reject();
 			}
-		});
-	}
+	});
+}
 
-	// Delete todo
+	// // Delete todo
 	deleteTodo(userId: number, todoId: number) {
-		return new Promise(async (resolve, reject) => {
-			let targetTodo = -1;
-			const filteredTodos: Array<String> = [];
-			const todosData = await this.readTodos();
-			for (let i = 0; i < todosData.length; i++) {
-				if (
-					todosData[i].userId === userId &&
-					todosData[i].todoId === todoId
-				) {
-					targetTodo = i;
-					break;
-				}
-			}
-			if (targetTodo === -1) {
-				resolve(null);
-			} else {
-				todosData.splice(targetTodo, 1);
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// file writed
-					fs.readFile(path + "/todos.json", "utf-8", (err: string, data: any) => {
-						if (err) {
-							console.log(err);
-							reject();
-						}
-						data = JSON.parse(data);
-						for (let i = 0; i < data.length; i++) {
-							if (data[i].userId === userId) {
-								filteredTodos.push(data[i]);
-							}
-						}
-						resolve(JSON.stringify(filteredTodos));
-					});
-				});
-			}
+	return new Promise(async (resolve, reject) => {
+		let existUser = true;
+		const user_id = await pool.query("SELECT user_id FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+		if (!user_id.rows[0]) {
+			existUser = false;
+		}
+		if (existUser) {
+			await pool.query("DELETE FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+			resolve(JSON.stringify("Todo Deleted"));
+		} else {
+			resolve(JSON.stringify("Todo Not found"));
+		}
 		});
 	}
 
 	// Update status of todo, i.e., completed or not
 	updateTodoStatus(todoId: number, userId: number, status: string) {
 		return new Promise(async (resolve, reject) => {
-			const todosData = await this.readTodos();
-			let targetTodo;
-			for (let i = 0; i < todosData.length; i++) {
-				if (
-					todosData[i].todoId === todoId &&
-					todosData[i].userId === userId
-				) {
-					targetTodo = i;
-					break;
-				}
+			let existUser = true;
+			const user = await pool.query("SELECT user_id FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+			if (!user.rows[0]) {
+				existUser = false;
 			}
-			if (targetTodo || targetTodo === 0) {
-				todosData[targetTodo].isCompleted = status;
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// File written successfully
-				});
-				resolve(todosData[targetTodo]);
+			if (existUser) {
+				await pool.query("UPDATE todos SET is_completed = $1 WHERE todo_id = $2 AND user_id = $3", [status, todoId, userId]);
+				const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+				resolve(todo.rows);
 			} else {
-				resolve(null);
+				resolve("Please enter correct user id and todo id.");
 			}
 		});
 	}
@@ -151,31 +84,17 @@ export class Todos {
 	// Update todo
 	updateTodo(todoId: number, userId: number, title: string, description: string) {
 		return new Promise(async (resolve, reject) => {
-			let targetTodo;
-			const todosData = await this.readTodos();
-			for (let i = 0; i < todosData.length; i++) {
-				if (
-					todosData[i].userId === userId &&
-					todosData[i].todoId === todoId
-				) {
-					targetTodo = i;
-					break;
-				}
+			let existUser = true;
+			const user = await pool.query("SELECT user_id FROM todos WHERE user_id = $1 AND todo_id = $2", [userId, todoId]);
+			if (!user.rows[0]) {
+				existUser = false;
 			}
-			// Update todo
-			if (!targetTodo && targetTodo !== 0) {
-				resolve(null);
+			if (existUser) {
+				await pool.query("UPDATE todos SET title = $1, description = $2 WHERE user_id = $3 AND todo_id = $4", [title, description, userId, todoId]);
+				const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE user_id = $1", [userId]);
+				resolve(JSON.stringify(todo.rows));
 			} else {
-				todosData[targetTodo].title = title;
-				todosData[targetTodo].description = description;
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-					// File written
-				});
-				resolve(JSON.stringify(todosData[targetTodo]));
+				resolve(null);
 			}
 		});
 	}
@@ -183,67 +102,64 @@ export class Todos {
 	// Create a new todo testing
 	createTodo(userId: number, todoTitle: string, todoDescription: string) {
 		return new Promise(async (resolve, reject) => {
-			const todosData = await this.readTodos();
-			const usersData = await this.readUsers();
-			let existUser = false;
-			for (let i = 0; i < usersData.length; i++) {
-				if (usersData[i].userId === userId) {
-					existUser = true;
-					break;
-				}
+			let existUser = true;
+			if (!todoTitle || !todoDescription) {
+				resolve("Empty Todo can't be created");
+			} else {
+			const user_id = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
+			if (!user_id.rows[0]) {
+				existUser = false;
 			}
 			if (existUser) {
-				let id = todosData.length;
-				id++;
-				const todo = {
-					todoId: id,
-					userId,
-					title: todoTitle,
-					description: todoDescription,
-					isCompleted: false,
-				};
-				todosData.push(todo);
-				fs.writeFile(path + "/todos.json", JSON.stringify(todosData), (err: string) => {
-					if (err) {
-						console.log(err);
-						reject();
-					}
-				});
-				resolve(todo);
+				const newTodo = await pool.query("INSERT INTO todos (user_id, title, description, is_completed) VALUES ($1, $2, $3, $4) RETURNING *", [userId, todoTitle, todoDescription, false]);
+				const todo = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE todo_id = $1", [newTodo.rows[0].todo_id]);
+				resolve(todo.rows);
 			} else {
 				resolve(null);
 			}
+		}
 		});
 	}
 
 	// Get Todos with user id
 	getTodos(userId: number) {
 		return new Promise(async (resolve) => {
-			const todosData = await this.readTodos();
-			const usersData = await this.readUsers();
-			let filteredTodos: Array<String> = [];
-			let i = 1;
-			for (i = 0; i < todosData.length; i++) {
-				if (todosData[i].userId === userId) {
-					filteredTodos.push(todosData[i]);
-				}
+			let existUser = true;
+			const user_id = await pool.query("SELECT user_id FROM users WHERE user_id = $1", [userId]);
+			if (!user_id.rows[0]) {
+				existUser = false;
 			}
-			let existUser = false;
-			for (let i = 0; i < usersData.length; i++) {
-				if (usersData[i].userId === userId) {
-					existUser = true;
-					break;
-				}
-			}
-			if (!existUser) {
-				resolve(JSON.stringify("This user does not exist"));
+			if (existUser) {
+				const todos = await pool.query("SELECT todo_id, title, description, is_completed FROM todos WHERE user_id = $1;", [userId]);
+				resolve(JSON.stringify(todos.rows));
 			} else {
-				if (!filteredTodos[0]) {
-					resolve(JSON.stringify([]));
-				} else {
-					resolve(JSON.stringify(filteredTodos));
-				}
+				resolve(null);
 			}
+			// const todosData = await this.readTodos();
+			// const usersData = await this.readUsers();
+			// let filteredTodos: Array<String> = [];
+			// let i = 1;
+			// for (i = 0; i < todosData.length; i++) {
+			// 	if (todosData[i].userId === userId) {
+			// 		filteredTodos.push(todosData[i]);
+			// 	}
+			// }
+			// let existUser = false;
+			// for (let i = 0; i < usersData.length; i++) {
+			// 	if (usersData[i].userId === userId) {
+			// 		existUser = true;
+			// 		break;
+			// 	}
+			// }
+			// if (!existUser) {
+			// 	resolve(JSON.stringify("This user does not exist"));
+			// } else {
+			// 	if (!filteredTodos[0]) {
+			// 		resolve(JSON.stringify([]));
+			// 	} else {
+			// 		resolve(JSON.stringify(filteredTodos));
+			// 	}
+			// }
 		});
 	}
 }
@@ -252,3 +168,15 @@ export class Todos {
 // module.exports = {
 // 	Todo,
 // };
+
+// Justing testing a function
+async function readData() {
+	try {
+		const data = await pool.query("SELECT  title, description, is_completed FROM todos;");
+		console.log(data.rows);
+	} catch (err) {
+		console.log(err);
+	}
+}
+
+//readData();
