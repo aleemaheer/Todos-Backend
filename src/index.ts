@@ -25,13 +25,17 @@ const server = http.createServer((req, res) => {
 		req.url === "/login" ||
 		req.url === "/forgot"
 	) {
+		handleCors(req, res);
 		handleUserRoutes.handleUserRoutes(req, res);
 	} else if (req.url === "/todos") {
 		// Handle todos routes
+		handleCors(req, res);
 		handleTodosRoutes.handleTodosRoutes(req, res);
 	} else if (req.url === "/") {
+		handleCors(req, res);
 		handleStaticRoutes.handleStaticRoutes(req, res);
 	} else {
+		handleCors(req, res);
 		handleMatchingUrls(req, res);
 		// res.writeHead(502, { "Content-Type": "application/json" });
 		// res.end(JSON.stringify("Route not found"));
@@ -52,10 +56,13 @@ function handleCors(req: any, res: any) {
 
 function handleMatchingUrls(req: any, res: any) {
 	if (req.url.match(/\/account\/([0-9]+)/)) {
+		handleCors(req, res);
 		handleUserRoutes.handleUserRoutes(req, res);
 	} else if (req.url.match(/\/todos\/([0-9]+)/)) {
+		handleCors(req, res);
 		handleTodosRoutes.handleTodosRoutes(req, res);
 	} else {
+		handleCors(req, res);
 		handleStaticRoutes.handleStaticRoutes(req, res);
 	}
 }
