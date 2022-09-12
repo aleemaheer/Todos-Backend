@@ -14,12 +14,16 @@
     <form>
         <div class="form-group">
           <label for="formGroupExampleInput">Enter your Email</label>
-          <input type="text" class="form-control" id="email" placeholder="Email">
+          <input type="email" class="form-control" id="email" placeholder="Email">
         </div>
         <div class="form-group">
           <label for="formGroupExampleInput2">Enter your Password</label>
           <input type="password" class="form-control" id="password" placeholder="Password"><br>
+          <input type="submit" class="btn btn-light" value="Go Back" id="back">
           <input type="submit" class="btn btn-light" value="Login" id="submit">
+        </div>
+        <div class="form-group">
+            <button id="forgetPassword" class="btn btn-light">Forget Password</button>
         </div>
     </form>
 </div>
@@ -28,6 +32,19 @@
     const email = document.querySelector("#email");
     const password = document.querySelector("#password");
     const submitBtn = document.querySelector("#submit");
+    const forgotBtn = document.querySelector("#forgetPassword");
+    const backBtn = document.querySelector("#back");
+
+    // Funtion to go back
+    backBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location = "/";
+    })
+
+    forgotBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            window.location = "/forgotPassword/forgetPassword.html";
+        })
     submitBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         const url = "http://localhost:3000/login";
@@ -41,11 +58,14 @@
         });
         const response = await result.json();
         console.log(response);
+
         if (typeof response === "string") {
             alert(response);
         } else {
             alert("Logged In");
             console.log(response[0].user_id);
+             // Store the user name in local storage
+            localStorage.setItem("userName", response[0].user_name)
             window.location = `/dashboard/dashboard.html/id=${response[0].user_id}`;
         }
     })

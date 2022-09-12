@@ -3,6 +3,7 @@ import path from "path";
 
 function handleStaticRoutes(req: any, res: any) {
 	if (req.method === "GET") {
+		console.log(req.url);
 		renderStaticPages(req, res);
 	}
 }
@@ -55,7 +56,23 @@ function renderStaticPages(req: any, res: any) {
 				res.end();
 			}
 		);
-	} else {
+	} else if (urlParts[1] === "png") {
+		fs.readFile(path.resolve(__dirname, `../../public${url}`),
+		
+		(err, data) => {
+			if (err) {
+				console.log(err);
+				res.writeHead(404, { "Content-Type": "application/json" });
+				res.end("<h1>404 Not Found</h1>");
+			}
+			res.writeHead(200, { "Content-Type": "image/x-png"});
+			console.log(data);
+			res.write(data);
+			res.end();
+		})
+
+	}
+	else {
 		urlParts = req.url.split("/id");
 		fs.readFile(
 			path.resolve(__dirname, `../../public${urlParts[0]}`),

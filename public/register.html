@@ -30,8 +30,8 @@
                     <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password">
                 </div>
                 <div class="form-group">
+                    <input type="submit" value="Go Back" class="btn btn-light" id="back">
                     <input type="submit" class="btn btn-light" value="Register" id="registerBtn">
-                    <button id="forgetPassword" class="btn btn-light">Forget Password</button>
                 </div>
             </form>
 
@@ -45,7 +45,7 @@
         const password = document.querySelector("#password");
         const confirmPassword = document.querySelector("#confirmPassword");
         const registerBtn = document.querySelector("#registerBtn");
-        const forgotBtn = document.querySelector("#forgetPassword");
+        const backBtn = document.querySelector("#back");
         
         // Function to register
         registerBtn.addEventListener("click", async (e) => {
@@ -53,11 +53,11 @@
             await register();
         });
 
-        // Function to handle forgot password
-        forgotBtn.addEventListener("click", async (e) => {
+        // Function to go back
+        backBtn.addEventListener("click", async (e) => {
             e.preventDefault();
-            window.location = "/forgotPassword/forgetPassword.html";
-        })
+            window.location = "/";
+        });
 
         async function register() {
             //e.preventDefault();
@@ -78,6 +78,7 @@
             } else {
                 alert("Successfully Registered");
                 emptyFields();
+                localStorage.setItem("userName", response[0].user_name);
                 window.location = `/dashboard/dashboard.html/id=${response[0].user_id}`;
             }
         }
